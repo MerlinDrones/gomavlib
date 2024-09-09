@@ -63,19 +63,45 @@ import "github.com/merlindrones/gomavlib"
 
 [Click to open the API Documentation](https://pkg.go.dev/github.com/merlindrones/gomavlib/#pkg-index)
 
-## Custom Dialect generation
+## Dialect generation
+
+There are no dialects with the source code. These must be generated for us with the library.
+There is a tool to generate these; just follow the commands below. the tool can take 1 flag:
+`--dialects=[, sep list of dialect names]`
+
+Without any flag it will generate:
+
+* minimal.xml
+* standard.xml
+* common.xml
+
+These will be generated in a dir called dialects in the current dir. So its probably a good idea to do this in the
+pkg dir of the git repo.
+
+NOTE: YOU SHOULD DO THIS BEFORE YOU TRY TO USE THE LIBRARY
 
 ```bash
-go install github.com/merlindrones/gomavlib/cmd/dialect-import@latest
-dialect-import my_dialect.xml
+go install github.com/merlindrones/gomavlib/cmd/gen-mavlink-dialects@latest
+gen-mavlink-dialects
 ```
+
+or if you have cloned the library just run `make dialects`
 
 ## Testing
 
 If you want to hack the library and test the results, unit tests can be launched with:
 
 ```bash
-make test
+make [test | testwithcoverage]
+```
+
+## Building Source
+
+There is a make file with many targets available. To get a list of the targets:
+
+```bash
+make help
+make debug
 ```
 
 ## Specifications
