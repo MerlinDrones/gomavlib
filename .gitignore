@@ -5,9 +5,6 @@
 *.so
 *.dylib
 
-# Dialects directory -- This should be generated
-/pkg/dialects
-
 # build and dist directory
 build/
 dist/
