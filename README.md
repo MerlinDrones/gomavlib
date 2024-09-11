@@ -45,15 +45,10 @@ Secondly, this library only supports Mavlink V2.
 * Easily create messages and frames
 
 
-
 ## Installation
-By default dialects are not generated.  After cloning the repo you should generate the dialects you are interested in.
-It is recommended to at least generate:
-```
-common.xml
-standard.xml
-minimal.xml
-```
+
+By default only the minimal, standard and common dialects are generated and in the repo. After cloning the repo you
+should generate the dialects you are interested in. See [Dialect Generation](#dialect-generation).
 
 ```go
 import "github.com/merlindrones/gomavlib"
@@ -63,11 +58,26 @@ import "github.com/merlindrones/gomavlib"
 
 [Click to open the API Documentation](https://pkg.go.dev/github.com/merlindrones/gomavlib/#pkg-index)
 
-## Custom Dialect generation
+## Dialect generation
+
+There are no dialects with the source code. These must be generated for us with the library.
+There is a tool to generate these; just follow the commands below. the tool can take 1 flag:
+`--dialects=[, sep list of dialect names]`
+
+Without any flag it will generate:
+* minimal.xml
+* standard.xml
+* common.xml
+
+These will be generated in a dir called dialects in the current dir. So its probably a good idea to do this in the
+pkg dir of the git repo.
+
+To get a list of all available dialects
+see [https://mavlink.io/en/messages/#dialects](https://mavlink.io/en/messages/#dialects)
 
 ```bash
-go install github.com/merlindrones/gomavlib/cmd/dialect-import@latest
-dialect-import my_dialect.xml
+go install github.com/merlindrones/gomavlib/cmd/gen-mavlink-dialects@latest
+gen-mavlink-dialects
 ```
 
 ## Testing
@@ -75,7 +85,16 @@ dialect-import my_dialect.xml
 If you want to hack the library and test the results, unit tests can be launched with:
 
 ```bash
-make test
+make [test | testwithcoverage]
+```
+
+## Building Source
+
+There is a make file with many targets available. To get a list of the targets:
+
+```bash
+make help
+make debug
 ```
 
 ## Specifications

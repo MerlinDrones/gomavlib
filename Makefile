@@ -46,57 +46,13 @@ LDFLAGS = -X '$(APP_NAME)/pkg/version.APP_NAME=$(APP_NAME)' \
 	-X '$(APP_NAME)/pkg/version.Version=$(VERSION)' \
 	-X '$(APP_NAME)/pkg/version.BuildTime=$(shell date -Iseconds)'
 
+default: build
+
 ## deps: Download and Install any missing dependecies
 .PHONY: deps
 deps:
 	go mod download -x
 	@echo $(DONE) "Deps"
-
-## front: Build the front end ui
-.PHONY: front
-front:
-	@echo "Building Front UI"
-	cd front/ && npm run build
-	@echo $(DONE) "Front\n"
-
-## build: Install missing dependencies. Builds binary in ./build
-.PHONY: build
-build: tidy fmt
-	@mkdir -pv $(BUILD_DIR)
-	@echo "$(LDFLAGS)"
-	@echo "  $(M)  Checking if there is any missing dependencies...\n"
-	@$(MAKE) deps
-	#go generate ./...
-	@echo "  $(M)  Building...\n"
-	#@echo "GOBIN: $(GOBIN)"
-	$(GOBIN)/gox -arch="$(ARCHES)" -os="$(OSES)" -output="$(OUTTPL)/{{.Dir}}" \
-      	-tags "$(BUILD_TAGS)" -ldflags "$(LDFLAGS)"
-	@echo "Built version:$(VERSION), build:$(GIT_COMMIT)"
-	@echo $(DONE) "Build\n"
-
-## dist: Creates a distribution
-.PHONY: dist
-dist: clean reports front build package
-	$(info "Built v$(VERSION), build $(COMMIT_ID)")
-	@echo $(DONE) "Dist\n"
-
-## package: Packages a distribution
-.PHONY: package
-package:
-	-@rm $(DIST_DIR)/*.gz*
-	cd "$(DIST_DIR)"; for dir in ./**; do \
-  		echo "Dir: $$dir" \
-  		ifneq $(findstring linux,$$dir)\
-          @echo "Found Linux"\
-        else\
-        endif\
-		cp $(CONFIG_DIR)/ymir.toml $$dir; \
-		cp $(WD)/README.md $$dir; \
-		cp $(WD)/LICENSE $$dir; \
-		$(GZCMD) "$(basename "$$dir").tar.gz" "$$dir"; \
-	done
-	cd "$(DIST_DIR)"; find . -maxdepth 1 -type f -printf "$(SHACMD) %P | tee \"./%P.sha\"\n" | sh
-	@echo $(DONE) "Package\n"
 
 ## tidy: Verifies and downloads all required dependencies
 .PHONY: tidy
@@ -163,24 +119,14 @@ reports: vet missing
 clean:
 	@echo "$(M)  🧹 Cleaning build ..."
 	go clean ./... || true
-	rm -rf $(BUILD_DIR)
-	rm -rf $(DIST_DIR)
 	rm -rf $(REPORT_DIR)
 	@echo $(DONE) "Clean\n"
 
-## gencerts: Generates a sample self signed cert and key to enable TLS
-.PHONY: gencerts
-gencerts:
-	@echo "$(M) Generating Self-Signed SSL certs"
-	$(shell openssl req -newkey rsa:4096 \
-		-x509 \
-		-sha256 \
-    	-days 365 \
-    	-nodes \
-    	-out ./etc/$(APP_NAME).crt \
-    	-keyout ./etc/$(APP_NAME).key \
-    	-subj "/CN=example.com" \
-        -addext "subjectAltName=DNS:example.com,DNS:www.example.net,IP:10.0.0.1")@echo "$(DONE) Gen Certs\n"
+.PHONY: dialects
+dialects:
+	$(eval export CGO_ENABLED = 0)
+	go run ./cmd/gen-mavlink-dialects
+	find ./pkg/dialects -type f -name '*.go' | xargs gofmt -l -w
 
 ## debug: Print make env information
 .PHONY: debug
