@@ -2,13 +2,15 @@ package frame
 
 import (
 	"bytes"
+	"encoding/binary"
 	"testing"
 	"time"
 
 	"bou.ke/monkey"
+	"github.com/stretchr/testify/require"
+
 	"github.com/merlindrones/gomavlib/pkg/dialect"
 	"github.com/merlindrones/gomavlib/pkg/message"
-	"github.com/stretchr/testify/require"
 )
 
 func TestWriterNewErrors(t *testing.T) {
@@ -23,7 +25,6 @@ func TestWriterNewErrors(t *testing.T) {
 		Writer: &buf,
 	})
 	require.EqualError(t, err, "OutSystemID must be greater than one")
-
 }
 
 func TestWriterWriteFrame(t *testing.T) {
@@ -40,6 +41,68 @@ func TestWriterWriteFrame(t *testing.T) {
 			err = writer.WriteFrame(ca.frame)
 			require.NoError(t, err)
 			require.Equal(t, ca.raw, buf.Bytes())
+		})
+	}
+}
+
+func TestWriterWriteFrameErrors(t *testing.T) {
+	for _, ca := range []struct {
+		name      string
+		dialectRW *dialect.ReadWriter
+		frame     Frame
+		err       string
+	}{
+		{
+			"nil message",
+			nil,
+			&V2Frame{
+				SequenceNumber: 0x01,
+				SystemID:       0x02,
+				ComponentID:    0x03,
+				Message:        nil,
+				Checksum:       0x0807,
+			},
+			"message is nil",
+		},
+		{
+			"nil dialect",
+			nil,
+			&V2Frame{
+				SequenceNumber: 0x27,
+				SystemID:       0x01,
+				ComponentID:    0x02,
+				Message: &MessageTest5{
+					'\x10',
+					binary.LittleEndian.Uint32([]byte("\x10\x10\x10\x10")),
+				},
+				Checksum: 0x66e5,
+			},
+			"dialect is nil",
+		},
+		{
+			"not in dialect",
+			testDialectRW,
+			&V2Frame{
+				SequenceNumber: 0x27,
+				SystemID:       0x01,
+				ComponentID:    0x02,
+				Message:        &MessageTest8{15, 7},
+				Checksum:       0x66e5,
+			},
+			"message is not in the dialect",
+		},
+	} {
+		t.Run(ca.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			writer, err := NewWriter(WriterConf{
+				Writer:      &buf,
+				OutSystemID: 1,
+				DialectRW:   ca.dialectRW,
+			})
+			require.NoError(t, err)
+
+			err = writer.WriteFrame(ca.frame)
+			require.EqualError(t, err, ca.err)
 		})
 	}
 }
@@ -137,6 +200,100 @@ func TestWriterWriteMessageErrors(t *testing.T) {
 			require.NoError(t, err)
 
 			err = writer.WriteMessage(ca.message)
+			require.EqualError(t, err, ca.err)
+		})
+	}
+}
+
+func TestWriterWriteFrameNilMsg(t *testing.T) {
+	writer, err := NewWriter(WriterConf{
+		Writer:      bytes.NewBuffer(nil),
+		DialectRW:   nil,
+		OutSystemID: 1,
+	})
+	require.NoError(t, err)
+
+	f := &V2Frame{Message: nil}
+	err = writer.WriteFrame(f)
+	require.Error(t, err)
+}
+
+func TestWriterFillFrameWithMessage(t *testing.T) {
+	for _, c := range []struct {
+		name string
+		msg  message.Message
+		raw  []byte
+	}{
+		{
+			"v2 frame from message",
+			&MessageHeartbeat{
+				Type:           1,
+				Autopilot:      2,
+				BaseMode:       3,
+				CustomMode:     4,
+				SystemStatus:   5,
+				MavlinkVersion: 3,
+			},
+			[]byte("\xFD\x09\x01\x00\x00\x01\x01\x00" +
+				"\x00\x00\x04\x00\x00\x00\x01\x02" +
+				"\x03\x05\x03\x19\xe7\x00\xe0\xf8" +
+				"\xd4\xb6\x8e\x0c\xe7\x5d\x07\x46" +
+				"\x81\xd4"),
+		},
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			buf := bytes.NewBuffer(nil)
+			writer, err := NewWriter(WriterConf{
+				Writer:      buf,
+				DialectRW:   testDialectRW,
+				OutSystemID: 1,
+			})
+			require.NoError(t, err)
+
+			frame, err := writer.FillFrameWithMessage(c.msg)
+			require.NoError(t, err)
+			require.IsType(t, &V2Frame{}, frame, "Should be of type Frame")
+			buf.Next(len(c.raw))
+		})
+	}
+}
+
+func TestWriterFillFrameWithMessageErrors(t *testing.T) {
+	for _, ca := range []struct {
+		name      string
+		dialectRW *dialect.ReadWriter
+		message   message.Message
+		err       string
+	}{
+		{
+			"nil message",
+			nil,
+			nil,
+			"message is nil",
+		},
+		{
+			"nil dialect",
+			nil,
+			&MessageTest8{15, 7},
+			"dialect is nil",
+		},
+		{
+			"not in dialect",
+			testDialectRW,
+			&MessageTest10{15, 7},
+			"message is not in the dialect",
+		},
+	} {
+		t.Run(ca.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			writer, err := NewWriter(WriterConf{
+				Writer:      &buf,
+				OutSystemID: 1,
+				DialectRW:   ca.dialectRW,
+			})
+			require.NoError(t, err)
+
+			_, err = writer.FillFrameWithMessage(ca.message)
 			require.EqualError(t, err, ca.err)
 		})
 	}
