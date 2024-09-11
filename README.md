@@ -45,15 +45,10 @@ Secondly, this library only supports Mavlink V2.
 * Easily create messages and frames
 
 
-
 ## Installation
-By default dialects are not generated.  After cloning the repo you should generate the dialects you are interested in.
-It is recommended to at least generate:
-```
-common.xml
-standard.xml
-minimal.xml
-```
+
+By default only the minimal, standard and common dialects are generated and in the repo. After cloning the repo you
+should generate the dialects you are interested in. See [Dialect Generation](#dialect-generation).
 
 ```go
 import "github.com/merlindrones/gomavlib"
@@ -70,7 +65,6 @@ There is a tool to generate these; just follow the commands below. the tool can 
 `--dialects=[, sep list of dialect names]`
 
 Without any flag it will generate:
-
 * minimal.xml
 * standard.xml
 * common.xml
@@ -78,14 +72,13 @@ Without any flag it will generate:
 These will be generated in a dir called dialects in the current dir. So its probably a good idea to do this in the
 pkg dir of the git repo.
 
-NOTE: YOU SHOULD DO THIS BEFORE YOU TRY TO USE THE LIBRARY
+To get a list of all available dialects
+see [https://mavlink.io/en/messages/#dialects](https://mavlink.io/en/messages/#dialects)
 
 ```bash
 go install github.com/merlindrones/gomavlib/cmd/gen-mavlink-dialects@latest
 gen-mavlink-dialects
 ```
-
-or if you have cloned the library just run `make dialects`
 
 ## Testing
 
