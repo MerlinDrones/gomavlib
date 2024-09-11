@@ -1,6 +1,6 @@
 module github.com/merlindrones/gomavlib
 
-go 1.23.0
+go 1.20.0
 
 require (
 	bou.ke/monkey v1.0.2

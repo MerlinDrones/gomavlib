@@ -338,7 +338,7 @@ func TestReaderErrorSignatureTimestamp(t *testing.T) {
 	}
 	f.Signature = f.GenerateSignature(NewV2Key(bytes.Repeat([]byte("\x4F"), 32)))
 	buf2 := make([]byte, 1024)
-	n, err := f.encodeTo(buf2, msgByts)
+	n, err := f.EncodeTo(buf2, msgByts)
 	require.NoError(t, err)
 	buf.Write(buf2[:n])
 
@@ -358,7 +358,7 @@ func TestReaderErrorSignatureTimestamp(t *testing.T) {
 	}
 	f.Signature = f.GenerateSignature(NewV2Key(bytes.Repeat([]byte("\x4F"), 32)))
 	buf2 = make([]byte, 1024)
-	n, err = f.encodeTo(buf2, msgByts)
+	n, err = f.EncodeTo(buf2, msgByts)
 	require.NoError(t, err)
 	buf.Write(buf2[:n])
 
