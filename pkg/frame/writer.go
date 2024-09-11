@@ -183,7 +183,7 @@ func (w *Writer) encodeMessageInFrame(fr Frame, mp *message.ReadWriter) {
 }
 
 func (w *Writer) writeFrameInner(fr Frame) error {
-	n, err := fr.encodeTo(w.bw, fr.GetMessage().(*message.MessageRaw).Payload)
+	n, err := fr.EncodeTo(w.bw, fr.GetMessage().(*message.MessageRaw).Payload)
 	if err != nil {
 		return err
 	}
