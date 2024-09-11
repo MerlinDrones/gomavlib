@@ -73,10 +73,54 @@ func NewWriter(conf WriterConf) (*Writer, error) {
 // The Message is wrapped into a Frame whose fields are filled automatically.
 // It must not be called by multiple routines in parallel.
 func (w *Writer) WriteMessage(m message.Message) error {
-	return w.writeFrameAndFill(&V2Frame{Message: m})
+	frame, err := w.FillFrameWithMessage(m)
+	if err != nil {
+		return err
+	}
+	return w.writeFrameInner(frame)
 }
 
-func (w *Writer) writeFrameAndFill(fr Frame) error {
+func (w *Writer) FillFrameWithMessage(m message.Message) (Frame, error) {
+	frame := &V2Frame{Message: m}
+	fmt.Printf("Before: %v\n", frame.SystemID)
+	err := w.fillFrame(frame)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("After: %v\n", frame.SystemID)
+	return frame, nil
+}
+
+// WriteFrame writes a Frame.
+// It must not be called by multiple routines in parallel.
+// This function is intended only for routing pre-existing and/or filled frames.
+func (w *Writer) WriteFrame(fr Frame) error {
+	if fr.GetMessage() == nil {
+		return fmt.Errorf("message is nil")
+	}
+
+	// encode message if it is not already encoded
+	if _, ok := fr.GetMessage().(*message.MessageRaw); !ok {
+		if w.conf.DialectRW == nil {
+			return fmt.Errorf("dialect is nil")
+		}
+
+		mp := w.conf.DialectRW.GetMessage(fr.GetMessage().GetID())
+		if mp == nil {
+			return fmt.Errorf("message is not in the dialect")
+		}
+
+		w.encodeMessageInFrame(fr, mp)
+	}
+
+	return w.writeFrameInner(fr)
+}
+
+/*
+*
+PRIVATE
+*/
+func (w *Writer) fillFrame(fr Frame) (err error) {
 	if fr.GetMessage() == nil {
 		return fmt.Errorf("message is nil")
 	}
@@ -125,33 +169,7 @@ func (w *Writer) writeFrameAndFill(fr Frame) error {
 		ff.Signature = ff.GenerateSignature(w.conf.OutKey)
 	}
 
-	return w.writeFrameInner(fr)
-}
-
-// WriteFrame writes a Frame.
-// It must not be called by multiple routines in parallel.
-// This function is intended only for routing pre-existing frames to other nodes,
-// since all frame fields must be filled manually.
-func (w *Writer) WriteFrame(fr Frame) error {
-	if fr.GetMessage() == nil {
-		return fmt.Errorf("message is nil")
-	}
-
-	// encode message if it is not already encoded
-	if _, ok := fr.GetMessage().(*message.MessageRaw); !ok {
-		if w.conf.DialectRW == nil {
-			return fmt.Errorf("dialect is nil")
-		}
-
-		mp := w.conf.DialectRW.GetMessage(fr.GetMessage().GetID())
-		if mp == nil {
-			return fmt.Errorf("message is not in the dialect")
-		}
-
-		w.encodeMessageInFrame(fr, mp)
-	}
-
-	return w.writeFrameInner(fr)
+	return nil
 }
 
 func (w *Writer) encodeMessageInFrame(fr Frame, mp *message.ReadWriter) {
