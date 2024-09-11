@@ -207,6 +207,10 @@ func (f *V2Frame) decode(br *bufio.Reader) error {
 	return nil
 }
 
+func (f V2Frame) EncodeTo(buf []byte, msgEncoded []byte) (int, error) {
+	return f.encodeTo(buf, msgEncoded)
+}
+
 func (f V2Frame) encodeTo(buf []byte, msgEncoded []byte) (int, error) {
 	msgLen := len(msgEncoded)
 
