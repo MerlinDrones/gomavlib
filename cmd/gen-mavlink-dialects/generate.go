@@ -47,8 +47,14 @@ func run(args []string) error {
 		return err
 	}
 
-	os.Mkdir(filepath.Join("pkg", "dialects"), 0o755)
-	os.Chdir(filepath.Join("pkg", "dialects"))
+	err = os.Mkdir(filepath.Join("pkg", "dialects"), 0o755)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = os.Chdir(filepath.Join("pkg", "dialects"))
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	var res struct {
 		Sha string `json:"sha"`
