@@ -19,30 +19,6 @@ const (
 	V2FlagSigned = 0x01
 )
 
-func uint24Decode(in []byte) uint32 {
-	return uint32(in[2])<<16 | uint32(in[1])<<8 | uint32(in[0])
-}
-
-func uint24Encode(buf []byte, in uint32) {
-	buf[0] = byte(in)
-	buf[1] = byte(in >> 8)
-	buf[2] = byte(in >> 16)
-}
-
-func uint48Decode(in []byte) uint64 {
-	return uint64(in[5])<<40 | uint64(in[4])<<32 | uint64(in[3])<<24 |
-		uint64(in[2])<<16 | uint64(in[1])<<8 | uint64(in[0])
-}
-
-func uint48Encode(buf []byte, in uint64) {
-	buf[0] = byte(in)
-	buf[1] = byte(in >> 8)
-	buf[2] = byte(in >> 16)
-	buf[3] = byte(in >> 24)
-	buf[4] = byte(in >> 32)
-	buf[5] = byte(in >> 40)
-}
-
 // V2Key is a key able to sign and validate V2 frames.
 type V2Key [32]byte
 
@@ -152,7 +128,7 @@ func (f V2Frame) GenerateSignature(key *V2Key) *V2Signature {
 	return sig
 }
 
-func (f *V2Frame) decode(br *bufio.Reader) error {
+func (f V2Frame) Decode(br *bufio.Reader) error {
 	// header
 	buf, err := peekAndDiscard(br, 9)
 	if err != nil {
@@ -167,6 +143,7 @@ func (f *V2Frame) decode(br *bufio.Reader) error {
 	msgID := uint24Decode(buf[6:])
 
 	// discard frame if incompatibility flag is not understood, as in recommendations
+	// Should only be 0 or 1 as of current version sep24
 	if f.IncompatibilityFlag != 0 && f.IncompatibilityFlag != V2FlagSigned {
 		return fmt.Errorf("unknown incompatibility flag: %d", f.IncompatibilityFlag)
 	}
@@ -240,6 +217,34 @@ func (f V2Frame) EncodeTo(buf []byte, msgEncoded []byte) (int, error) {
 	}
 
 	return n, nil
+}
+
+/*****************
+PRIVATE
+*****************/
+
+func uint24Decode(in []byte) uint32 {
+	return uint32(in[2])<<16 | uint32(in[1])<<8 | uint32(in[0])
+}
+
+func uint24Encode(buf []byte, in uint32) {
+	buf[0] = byte(in)
+	buf[1] = byte(in >> 8)
+	buf[2] = byte(in >> 16)
+}
+
+func uint48Decode(in []byte) uint64 {
+	return uint64(in[5])<<40 | uint64(in[4])<<32 | uint64(in[3])<<24 |
+		uint64(in[2])<<16 | uint64(in[1])<<8 | uint64(in[0])
+}
+
+func uint48Encode(buf []byte, in uint64) {
+	buf[0] = byte(in)
+	buf[1] = byte(in >> 8)
+	buf[2] = byte(in >> 16)
+	buf[3] = byte(in >> 24)
+	buf[4] = byte(in >> 32)
+	buf[5] = byte(in >> 40)
 }
 
 func peekAndDiscard(br *bufio.Reader, size int) ([]byte, error) {
