@@ -65,6 +65,11 @@ func NewReader(conf ReaderConf) (*Reader, error) {
 	}, nil
 }
 
+func (r *Reader) ReadFrom(buf *bufio.Reader) (Frame, error) {
+	r.br = bufio.NewReaderSize(buf, bufferSize)
+	return r.Read()
+}
+
 // Read reads a Frame from the reader.
 // It must not be called by multiple routines in parallel.
 func (r *Reader) Read() (Frame, error) {
@@ -85,7 +90,7 @@ func (r *Reader) Read() (Frame, error) {
 		return nil, err
 	}
 
-	err = f.decode(r.br)
+	err = f.Decode(r.br)
 	if err != nil {
 		return nil, newError(err.Error())
 	}
