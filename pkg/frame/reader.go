@@ -65,30 +65,21 @@ func NewReader(conf ReaderConf) (*Reader, error) {
 	}, nil
 }
 
-func (r *Reader) ReadFrom(buf *bufio.Reader) (Frame, error) {
+func (r *Reader) ReadFrom(buf *bufio.Reader) (*Frame, error) {
 	r.br = bufio.NewReaderSize(buf, bufferSize)
-	return r.Read()
+	f, err := r.Read()
+	return &f, err
 }
 
 // Read reads a Frame from the reader.
 // It must not be called by multiple routines in parallel.
 func (r *Reader) Read() (Frame, error) {
-	magicByte, err := r.br.ReadByte()
+	_, err := r.br.ReadByte()
 	if err != nil {
 		return nil, err
 	}
 
-	f, err := func() (Frame, error) {
-		switch magicByte {
-		case V2MagicByte:
-			return &V2Frame{}, nil
-		}
-
-		return nil, newError("invalid magic byte: %x", magicByte)
-	}()
-	if err != nil {
-		return nil, err
-	}
+	f := &V2Frame{}
 
 	err = f.Decode(r.br)
 	if err != nil {
@@ -96,24 +87,20 @@ func (r *Reader) Read() (Frame, error) {
 	}
 
 	if r.conf.InKey != nil {
-		ff, ok := f.(*V2Frame)
-		if !ok {
-			return nil, newError("signature required but packet is not v2")
-		}
 
-		if sig := ff.GenerateSignature(r.conf.InKey); *sig != *ff.Signature {
+		if sig := f.GenerateSignature(r.conf.InKey); *sig != *f.Signature {
 			return nil, newError("wrong signature")
 		}
 
 		// in UDP, packet order is not guaranteed. Therefore, we accept frames
 		// with a timestamp within 10 seconds with respect to the previous
 		if r.curReadSignatureTime > 0 &&
-			ff.SignatureTimestamp < (r.curReadSignatureTime-(10*100000)) {
+			f.SignatureTimestamp < (r.curReadSignatureTime-(10*100000)) {
 			return nil, newError("signature timestamp is too old")
 		}
 
-		if ff.SignatureTimestamp > r.curReadSignatureTime {
-			r.curReadSignatureTime = ff.SignatureTimestamp
+		if f.SignatureTimestamp > r.curReadSignatureTime {
+			r.curReadSignatureTime = f.SignatureTimestamp
 		}
 	}
 
@@ -125,16 +112,12 @@ func (r *Reader) Read() (Frame, error) {
 					sum, f.GetChecksum(), f.GetMessage().GetID())
 			}
 
-			_, isV2 := f.(*V2Frame)
-			msg, err := mp.Read(f.GetMessage().(*message.MessageRaw), isV2)
+			msg, err := mp.Read(f.GetMessage().(*message.MessageRaw), true)
 			if err != nil {
 				return nil, newError(fmt.Sprintf("unable to decode message: %s", err.Error()))
 			}
 
-			switch ff := f.(type) {
-			case *V2Frame:
-				ff.Message = msg
-			}
+			f.Message = msg
 		}
 	}
 
