@@ -106,7 +106,7 @@ var casesReadWrite = []struct {
 	name      string
 	dialectRW *dialect.ReadWriter
 	key       *V2Key
-	frame     Frame
+	frame     *V2Frame
 	raw       []byte
 }{
 	{

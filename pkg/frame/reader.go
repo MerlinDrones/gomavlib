@@ -65,20 +65,23 @@ func NewReader(conf ReaderConf) (*Reader, error) {
 	}, nil
 }
 
-func (r *Reader) ReadFrom(buf *bufio.Reader) (*Frame, error) {
+func (r *Reader) ReadFrom(buf *bufio.Reader) (*V2Frame, error) {
 	r.br = bufio.NewReaderSize(buf, bufferSize)
 	f, err := r.Read()
-	return &f, err
+	return f, err
 }
 
 // Read reads a Frame from the reader.
 // It must not be called by multiple routines in parallel.
-func (r *Reader) Read() (Frame, error) {
-	_, err := r.br.ReadByte()
+func (r *Reader) Read() (*V2Frame, error) {
+	magicByte, err := r.br.ReadByte()
 	if err != nil {
 		return nil, err
 	}
 
+	if magicByte != V2MagicByte {
+		return nil, newError("invalid magic byte: %x", magicByte)
+	}
 	f := &V2Frame{}
 
 	err = f.Decode(r.br)
