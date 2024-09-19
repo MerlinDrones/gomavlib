@@ -49,7 +49,7 @@ func TestWriterWriteFrameErrors(t *testing.T) {
 	for _, ca := range []struct {
 		name      string
 		dialectRW *dialect.ReadWriter
-		frame     Frame
+		frame     *V2Frame
 		err       string
 	}{
 		{

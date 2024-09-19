@@ -80,7 +80,7 @@ func (w *Writer) WriteMessage(m message.Message) error {
 	return w.writeFrameInner(frame)
 }
 
-func (w *Writer) FillFrameWithMessage(m message.Message) (Frame, error) {
+func (w *Writer) FillFrameWithMessage(m message.Message) (*V2Frame, error) {
 	frame := &V2Frame{Message: m}
 	fmt.Printf("Before: %v\n", frame.SystemID)
 	err := w.fillFrame(frame)
@@ -94,7 +94,7 @@ func (w *Writer) FillFrameWithMessage(m message.Message) (Frame, error) {
 // WriteFrame writes a Frame.
 // It must not be called by multiple routines in parallel.
 // This function is intended only for routing pre-existing and/or filled frames.
-func (w *Writer) WriteFrame(fr Frame) error {
+func (w *Writer) WriteFrame(fr *V2Frame) error {
 	if fr.GetMessage() == nil {
 		return fmt.Errorf("message is nil")
 	}
@@ -120,23 +120,20 @@ func (w *Writer) WriteFrame(fr Frame) error {
 *
 PRIVATE
 */
-func (w *Writer) fillFrame(fr Frame) (err error) {
+func (w *Writer) fillFrame(fr *V2Frame) (err error) {
 	if fr.GetMessage() == nil {
 		return fmt.Errorf("message is nil")
 	}
 
 	// fill SequenceNumber, SystemID, ComponentID, CompatibilityFlag, IncompatibilityFlag
-	switch ff := fr.(type) {
-	case *V2Frame:
-		ff.SequenceNumber = w.curWriteSequenceNumber
-		ff.SystemID = w.conf.OutSystemID
-		ff.ComponentID = w.conf.OutComponentID
+	fr.SequenceNumber = w.curWriteSequenceNumber
+	fr.SystemID = w.conf.OutSystemID
+	fr.ComponentID = w.conf.OutComponentID
 
-		ff.CompatibilityFlag = 0
-		ff.IncompatibilityFlag = 0
-		if w.conf.OutKey != nil {
-			ff.IncompatibilityFlag |= V2FlagSigned
-		}
+	fr.CompatibilityFlag = 0
+	fr.IncompatibilityFlag = 0
+	if w.conf.OutKey != nil {
+		fr.IncompatibilityFlag |= V2FlagSigned
 	}
 
 	w.curWriteSequenceNumber++
@@ -156,25 +153,21 @@ func (w *Writer) fillFrame(fr Frame) (err error) {
 	}
 
 	// fill checksum
-	switch ff := fr.(type) {
-	case *V2Frame:
-		ff.Checksum = ff.GenerateChecksum(mp.CRCExtra())
-	}
+	fr.Checksum = fr.GenerateChecksum(mp.CRCExtra())
 
 	// fill SignatureLinkID, SignatureTimestamp, Signature if v2
-	if ff, ok := fr.(*V2Frame); ok && w.conf.OutKey != nil {
-		ff.SignatureLinkID = w.conf.OutSignatureLinkID
+	if w.conf.OutKey != nil {
+		fr.SignatureLinkID = w.conf.OutSignatureLinkID
 		// Timestamp in 10 microsecond units since 1st January 2015 GMT time
-		ff.SignatureTimestamp = uint64(time.Since(signatureReferenceDate)) / 10000
-		ff.Signature = ff.GenerateSignature(w.conf.OutKey)
+		fr.SignatureTimestamp = uint64(time.Since(signatureReferenceDate)) / 10000
+		fr.Signature = fr.GenerateSignature(w.conf.OutKey)
 	}
 
 	return nil
 }
 
 func (w *Writer) encodeMessageInFrame(fr Frame, mp *message.ReadWriter) {
-	_, isV2 := fr.(*V2Frame)
-	msgRaw := mp.Write(fr.GetMessage(), isV2)
+	msgRaw := mp.Write(fr.GetMessage(), true)
 
 	switch ff := fr.(type) {
 	case *V2Frame:
@@ -182,7 +175,7 @@ func (w *Writer) encodeMessageInFrame(fr Frame, mp *message.ReadWriter) {
 	}
 }
 
-func (w *Writer) writeFrameInner(fr Frame) error {
+func (w *Writer) writeFrameInner(fr *V2Frame) error {
 	n, err := fr.EncodeTo(w.bw, fr.GetMessage().(*message.MessageRaw).Payload)
 	if err != nil {
 		return err

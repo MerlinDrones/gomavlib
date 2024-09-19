@@ -128,7 +128,7 @@ func (f V2Frame) GenerateSignature(key *V2Key) *V2Signature {
 	return sig
 }
 
-func (f V2Frame) Decode(br *bufio.Reader) error {
+func (f *V2Frame) Decode(br *bufio.Reader) error {
 	// header
 	buf, err := peekAndDiscard(br, 9)
 	if err != nil {
@@ -184,7 +184,7 @@ func (f V2Frame) Decode(br *bufio.Reader) error {
 	return nil
 }
 
-func (f V2Frame) EncodeTo(buf []byte, msgEncoded []byte) (int, error) {
+func (f *V2Frame) EncodeTo(buf []byte, msgEncoded []byte) (int, error) {
 	msgLen := len(msgEncoded)
 
 	// header
