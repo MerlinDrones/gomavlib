@@ -3,6 +3,7 @@ package message
 
 // Message is the interface that must be implemented by all Mavlink messages.
 // Furthermore, any message struct must be labeled "MessageNameOfMessage".
+// TODO: Implement Stringer Interface String()
 type Message interface {
 	GetID() uint32
 }

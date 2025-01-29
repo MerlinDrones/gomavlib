@@ -82,12 +82,10 @@ func (w *Writer) WriteMessage(m message.Message) error {
 
 func (w *Writer) FillFrameWithMessage(m message.Message) (*V2Frame, error) {
 	frame := &V2Frame{Message: m}
-	fmt.Printf("Before: %v\n", frame.SystemID)
 	err := w.fillFrame(frame)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("After: %v\n", frame.SystemID)
 	return frame, nil
 }
 

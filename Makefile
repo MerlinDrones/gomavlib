@@ -120,6 +120,7 @@ clean:
 	@echo "$(M)  🧹 Cleaning build ..."
 	go clean ./... || true
 	rm -rf $(REPORT_DIR)
+	rm -rf $(BUILD_DIR)
 	@echo $(DONE) "Clean\n"
 
 .PHONY: dialects
