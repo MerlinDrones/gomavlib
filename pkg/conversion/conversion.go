@@ -29,8 +29,8 @@ var tplDialect = template.Must(template.New("").Parse(
 package {{ .PkgName }}
 
 import (
-	"github.com/merlindrones/gomavlib/pkg/message"
-	"github.com/merlindrones/gomavlib/pkg/dialect"
+	"github.com/merlindrones/gomavlib/v3/pkg/message"
+	"github.com/merlindrones/gomavlib/v3/pkg/dialect"
 )
 
 // Dialect contains the dialect definition.
@@ -58,7 +58,7 @@ package {{ .PkgName }}
 {{- if .Link }}
 
 import (
-	"github.com/merlindrones/gomavlib/pkg/dialects/{{ .Enum.DefName }}"
+	"github.com/merlindrones/gomavlib/v3/pkg/dialects/{{ .Enum.DefName }}"
 )
 
 {{- range .Enum.Description }}
@@ -101,13 +101,21 @@ const (
 {{- end }}
 )
 
-var labels_{{ .Enum.Name }} = map[{{ .Enum.Name }}]string{
+{{- if .Enum.Bitmask }}
+var values_{{ .Enum.Name }} = []{{ .Enum.Name }}{
+{{- range .Enum.Values }}
+	{{ .Name }},
+{{- end }}
+}
+{{- end }}
+
+var value_to_label_{{ .Enum.Name }} = map[{{ .Enum.Name }}]string{
 {{- range .Enum.Values }}
 	{{ .Name }}: "{{ .Name }}",
 {{- end }}
 }
 
-var values_{{ .Enum.Name }} = map[string]{{ .Enum.Name }}{
+var label_to_value_{{ .Enum.Name }} = map[string]{{ .Enum.Name }}{
 {{- range .Enum.Values }}
 	"{{ .Name }}": {{ .Name }},
 {{- end }}
@@ -120,15 +128,14 @@ func (e {{ .Enum.Name }}) MarshalText() ([]byte, error) {
 		return []byte("0"), nil
 	}
 	var names []string
-	for i := 0; i < {{ len .Enum.Values }}; i++ {
-		mask := {{ .Enum.Name }}(1 << i)
-		if e&mask == mask {
-			names = append(names, labels_{{ .Enum.Name }}[mask])
+	for _, val := range values_{{ .Enum.Name }} {
+		if e&val == val {
+			names = append(names, value_to_label_{{ .Enum.Name }}[val])
 		}
 	}
 	return []byte(strings.Join(names, " | ")), nil
 {{- else }}
-	if name, ok := labels_{{ .Enum.Name }}[e]; ok {
+	if name, ok := value_to_label_{{ .Enum.Name }}[e]; ok {
 		return []byte(name), nil
 	}
 	return []byte(strconv.Itoa(int(e))), nil
@@ -141,7 +148,7 @@ func (e *{{ .Enum.Name }}) UnmarshalText(text []byte) error {
 	labels := strings.Split(string(text), " | ")
 	var mask {{ .Enum.Name }}
 	for _, label := range labels {
-		if value, ok := values_{{ .Enum.Name }}[label]; ok {
+		if value, ok := label_to_value_{{ .Enum.Name }}[label]; ok {
 			mask |= value
 		} else if value, err := strconv.Atoi(label); err == nil {
 			mask |= {{ .Enum.Name }}(value)
@@ -151,7 +158,7 @@ func (e *{{ .Enum.Name }}) UnmarshalText(text []byte) error {
 	}
 	*e = mask
 {{- else }}
-	if value, ok := values_{{ .Enum.Name }}[string(text)]; ok {
+	if value, ok := label_to_value_{{ .Enum.Name }}[string(text)]; ok {
 	   *e = value
 	} else if value, err := strconv.Atoi(string(text)); err == nil {
 	   *e = {{ .Enum.Name }}(value)
@@ -178,7 +185,7 @@ package {{ .PkgName }}
 {{- if .Link }}
 
 import (
-	"github.com/merlindrones/gomavlib/pkg/dialects/{{ .Msg.DefName }}"
+	"github.com/merlindrones/gomavlib/v3/pkg/dialects/{{ .Msg.DefName }}"
 )
 
 {{- range .Msg.Description }}
@@ -325,7 +332,7 @@ func processDefinition(
 	}
 	processedDefs[defAddr] = struct{}{}
 
-	_, _ = fmt.Fprintf(os.Stderr, "processing definition %s\n", defAddr)
+	fmt.Fprintf(os.Stderr, "processing definition %s\n", defAddr)
 
 	content, err := getDefinition(isRemote, defAddr)
 	if err != nil {
@@ -347,7 +354,8 @@ func processDefinition(
 		if isRemote {
 			subDefAddr = addrPath + subDefAddr
 		}
-		subDefs, err := processDefinition(version, processedDefs, isRemote, subDefAddr)
+		var subDefs []*outDefinition
+		subDefs, err = processDefinition(version, processedDefs, isRemote, subDefAddr)
 		if err != nil {
 			return nil, err
 		}
@@ -377,14 +385,16 @@ func processDefinition(
 
 			switch {
 			case strings.HasPrefix(entry.Value, "0b"):
-				tmp, err := strconv.ParseUint(entry.Value[2:], 2, 64)
+				var tmp uint64
+				tmp, err = strconv.ParseUint(entry.Value[2:], 2, 64)
 				if err != nil {
 					return nil, err
 				}
 				v = tmp
 
 			case strings.HasPrefix(entry.Value, "0x"):
-				tmp, err := strconv.ParseUint(entry.Value[2:], 16, 64)
+				var tmp uint64
+				tmp, err = strconv.ParseUint(entry.Value[2:], 16, 64)
 				if err != nil {
 					return nil, err
 				}
@@ -393,12 +403,14 @@ func processDefinition(
 			case strings.Contains(entry.Value, "**"):
 				parts := strings.SplitN(entry.Value, "**", 2)
 
-				x, err := strconv.ParseUint(parts[0], 10, 64)
+				var x uint64
+				x, err = strconv.ParseUint(parts[0], 10, 64)
 				if err != nil {
 					return nil, err
 				}
 
-				y, err := strconv.ParseUint(parts[1], 10, 64)
+				var y uint64
+				y, err = strconv.ParseUint(parts[1], 10, 64)
 				if err != nil {
 					return nil, err
 				}
@@ -406,7 +418,8 @@ func processDefinition(
 				v = uintPow(x, y)
 
 			default:
-				tmp, err := strconv.ParseUint(entry.Value, 10, 64)
+				var tmp uint64
+				tmp, err = strconv.ParseUint(entry.Value, 10, 64)
 				if err != nil {
 					return nil, err
 				}
@@ -425,7 +438,8 @@ func processDefinition(
 
 	// messages
 	for _, msg := range def.Messages {
-		outMsg, err := processMessage(outDef.Name, msg)
+		var outMsg *outMessage
+		outMsg, err = processMessage(outDef.Name, msg)
 		if err != nil {
 			return nil, err
 		}
@@ -502,7 +516,7 @@ func processField(fieldDef *dialectField) (*outField, error) {
 
 	newname := dialectNameDefToGo(fieldDef.Name)
 
-	// name conversion is not unique: add tag
+	// name conversion is not univoque: add tag
 	if dialectNameGoToDef(newname) != fieldDef.Name {
 		tags["mavname"] = fieldDef.Name
 	}
@@ -636,10 +650,7 @@ func Convert(path string, link bool) error {
 		return fmt.Errorf("directory '%s' already exists", defName)
 	}
 
-	err = os.Mkdir(defName, 0o755)
-	if err != nil {
-		return err
-	}
+	os.Mkdir(defName, 0o755)
 
 	// parse all definitions recursively
 	outDefs, err := processDefinition(&version, processedDefs, isRemote, path)
@@ -666,7 +677,7 @@ func Convert(path string, link bool) error {
 	}
 
 	for _, enum := range enums {
-		err := writeEnum(defName, defName, enum, link)
+		err = writeEnum(defName, defName, enum, link)
 		if err != nil {
 			return err
 		}
@@ -674,7 +685,7 @@ func Convert(path string, link bool) error {
 
 	for _, def := range outDefs {
 		for _, msg := range def.Messages {
-			err := writeMessage(defName, defName, msg, link)
+			err = writeMessage(defName, defName, msg, link)
 			if err != nil {
 				return err
 			}
