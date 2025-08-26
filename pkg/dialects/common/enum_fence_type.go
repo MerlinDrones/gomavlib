@@ -8,11 +8,12 @@ import (
 	"strings"
 )
 
+// Fence types to enable or disable when using MAV_CMD_DO_FENCE_ENABLE.
+// Note that at least one of these flags must be set in MAV_CMD_DO_FENCE_ENABLE.param2.
+// If none are set, the flight stack will ignore the field and enable/disable its default set of fences (usually all of them).
 type FENCE_TYPE uint64
 
 const (
-	// All fence types
-	FENCE_TYPE_ALL FENCE_TYPE = 0
 	// Maximum altitude fence
 	FENCE_TYPE_ALT_MAX FENCE_TYPE = 1
 	// Circle fence
@@ -23,16 +24,21 @@ const (
 	FENCE_TYPE_ALT_MIN FENCE_TYPE = 8
 )
 
-var labels_FENCE_TYPE = map[FENCE_TYPE]string{
-	FENCE_TYPE_ALL:     "FENCE_TYPE_ALL",
+var values_FENCE_TYPE = []FENCE_TYPE{
+	FENCE_TYPE_ALT_MAX,
+	FENCE_TYPE_CIRCLE,
+	FENCE_TYPE_POLYGON,
+	FENCE_TYPE_ALT_MIN,
+}
+
+var value_to_label_FENCE_TYPE = map[FENCE_TYPE]string{
 	FENCE_TYPE_ALT_MAX: "FENCE_TYPE_ALT_MAX",
 	FENCE_TYPE_CIRCLE:  "FENCE_TYPE_CIRCLE",
 	FENCE_TYPE_POLYGON: "FENCE_TYPE_POLYGON",
 	FENCE_TYPE_ALT_MIN: "FENCE_TYPE_ALT_MIN",
 }
 
-var values_FENCE_TYPE = map[string]FENCE_TYPE{
-	"FENCE_TYPE_ALL":     FENCE_TYPE_ALL,
+var label_to_value_FENCE_TYPE = map[string]FENCE_TYPE{
 	"FENCE_TYPE_ALT_MAX": FENCE_TYPE_ALT_MAX,
 	"FENCE_TYPE_CIRCLE":  FENCE_TYPE_CIRCLE,
 	"FENCE_TYPE_POLYGON": FENCE_TYPE_POLYGON,
@@ -45,10 +51,9 @@ func (e FENCE_TYPE) MarshalText() ([]byte, error) {
 		return []byte("0"), nil
 	}
 	var names []string
-	for i := 0; i < 5; i++ {
-		mask := FENCE_TYPE(1 << i)
-		if e&mask == mask {
-			names = append(names, labels_FENCE_TYPE[mask])
+	for _, val := range values_FENCE_TYPE {
+		if e&val == val {
+			names = append(names, value_to_label_FENCE_TYPE[val])
 		}
 	}
 	return []byte(strings.Join(names, " | ")), nil
@@ -59,7 +64,7 @@ func (e *FENCE_TYPE) UnmarshalText(text []byte) error {
 	labels := strings.Split(string(text), " | ")
 	var mask FENCE_TYPE
 	for _, label := range labels {
-		if value, ok := values_FENCE_TYPE[label]; ok {
+		if value, ok := label_to_value_FENCE_TYPE[label]; ok {
 			mask |= value
 		} else if value, err := strconv.Atoi(label); err == nil {
 			mask |= FENCE_TYPE(value)

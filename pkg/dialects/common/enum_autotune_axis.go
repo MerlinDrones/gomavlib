@@ -8,12 +8,11 @@ import (
 	"strings"
 )
 
-// Enable axes that will be tuned via autotuning. Used in MAV_CMD_DO_AUTOTUNE_ENABLE.
+// Axes that will be autotuned by MAV_CMD_DO_AUTOTUNE_ENABLE.
+// Note that at least one flag must be set in MAV_CMD_DO_AUTOTUNE_ENABLE.param2: if none are set, the flight stack will tune its default set of axes.
 type AUTOTUNE_AXIS uint64
 
 const (
-	// Flight stack tunes axis according to its default settings.
-	AUTOTUNE_AXIS_DEFAULT AUTOTUNE_AXIS = 0
 	// Autotune roll axis.
 	AUTOTUNE_AXIS_ROLL AUTOTUNE_AXIS = 1
 	// Autotune pitch axis.
@@ -22,18 +21,22 @@ const (
 	AUTOTUNE_AXIS_YAW AUTOTUNE_AXIS = 4
 )
 
-var labels_AUTOTUNE_AXIS = map[AUTOTUNE_AXIS]string{
-	AUTOTUNE_AXIS_DEFAULT: "AUTOTUNE_AXIS_DEFAULT",
-	AUTOTUNE_AXIS_ROLL:    "AUTOTUNE_AXIS_ROLL",
-	AUTOTUNE_AXIS_PITCH:   "AUTOTUNE_AXIS_PITCH",
-	AUTOTUNE_AXIS_YAW:     "AUTOTUNE_AXIS_YAW",
+var values_AUTOTUNE_AXIS = []AUTOTUNE_AXIS{
+	AUTOTUNE_AXIS_ROLL,
+	AUTOTUNE_AXIS_PITCH,
+	AUTOTUNE_AXIS_YAW,
 }
 
-var values_AUTOTUNE_AXIS = map[string]AUTOTUNE_AXIS{
-	"AUTOTUNE_AXIS_DEFAULT": AUTOTUNE_AXIS_DEFAULT,
-	"AUTOTUNE_AXIS_ROLL":    AUTOTUNE_AXIS_ROLL,
-	"AUTOTUNE_AXIS_PITCH":   AUTOTUNE_AXIS_PITCH,
-	"AUTOTUNE_AXIS_YAW":     AUTOTUNE_AXIS_YAW,
+var value_to_label_AUTOTUNE_AXIS = map[AUTOTUNE_AXIS]string{
+	AUTOTUNE_AXIS_ROLL:  "AUTOTUNE_AXIS_ROLL",
+	AUTOTUNE_AXIS_PITCH: "AUTOTUNE_AXIS_PITCH",
+	AUTOTUNE_AXIS_YAW:   "AUTOTUNE_AXIS_YAW",
+}
+
+var label_to_value_AUTOTUNE_AXIS = map[string]AUTOTUNE_AXIS{
+	"AUTOTUNE_AXIS_ROLL":  AUTOTUNE_AXIS_ROLL,
+	"AUTOTUNE_AXIS_PITCH": AUTOTUNE_AXIS_PITCH,
+	"AUTOTUNE_AXIS_YAW":   AUTOTUNE_AXIS_YAW,
 }
 
 // MarshalText implements the encoding.TextMarshaler interface.
@@ -42,10 +45,9 @@ func (e AUTOTUNE_AXIS) MarshalText() ([]byte, error) {
 		return []byte("0"), nil
 	}
 	var names []string
-	for i := 0; i < 4; i++ {
-		mask := AUTOTUNE_AXIS(1 << i)
-		if e&mask == mask {
-			names = append(names, labels_AUTOTUNE_AXIS[mask])
+	for _, val := range values_AUTOTUNE_AXIS {
+		if e&val == val {
+			names = append(names, value_to_label_AUTOTUNE_AXIS[val])
 		}
 	}
 	return []byte(strings.Join(names, " | ")), nil
@@ -56,7 +58,7 @@ func (e *AUTOTUNE_AXIS) UnmarshalText(text []byte) error {
 	labels := strings.Split(string(text), " | ")
 	var mask AUTOTUNE_AXIS
 	for _, label := range labels {
-		if value, ok := values_AUTOTUNE_AXIS[label]; ok {
+		if value, ok := label_to_value_AUTOTUNE_AXIS[label]; ok {
 			mask |= value
 		} else if value, err := strconv.Atoi(label); err == nil {
 			mask |= AUTOTUNE_AXIS(value)

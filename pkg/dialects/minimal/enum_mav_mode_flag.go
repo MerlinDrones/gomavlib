@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// These flags encode the MAV mode.
+// These flags encode the MAV mode, see MAV_MODE enum for useful combinations.
 type MAV_MODE_FLAG uint64
 
 const (
@@ -26,11 +26,22 @@ const (
 	MAV_MODE_FLAG_AUTO_ENABLED MAV_MODE_FLAG = 4
 	// 0b00000010 system has a test mode enabled. This flag is intended for temporary system tests and should not be used for stable implementations.
 	MAV_MODE_FLAG_TEST_ENABLED MAV_MODE_FLAG = 2
-	// 0b00000001 Reserved for future use.
+	// 0b00000001 system-specific custom mode is enabled. When using this flag to enable a custom mode all other flags should be ignored.
 	MAV_MODE_FLAG_CUSTOM_MODE_ENABLED MAV_MODE_FLAG = 1
 )
 
-var labels_MAV_MODE_FLAG = map[MAV_MODE_FLAG]string{
+var values_MAV_MODE_FLAG = []MAV_MODE_FLAG{
+	MAV_MODE_FLAG_SAFETY_ARMED,
+	MAV_MODE_FLAG_MANUAL_INPUT_ENABLED,
+	MAV_MODE_FLAG_HIL_ENABLED,
+	MAV_MODE_FLAG_STABILIZE_ENABLED,
+	MAV_MODE_FLAG_GUIDED_ENABLED,
+	MAV_MODE_FLAG_AUTO_ENABLED,
+	MAV_MODE_FLAG_TEST_ENABLED,
+	MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,
+}
+
+var value_to_label_MAV_MODE_FLAG = map[MAV_MODE_FLAG]string{
 	MAV_MODE_FLAG_SAFETY_ARMED:         "MAV_MODE_FLAG_SAFETY_ARMED",
 	MAV_MODE_FLAG_MANUAL_INPUT_ENABLED: "MAV_MODE_FLAG_MANUAL_INPUT_ENABLED",
 	MAV_MODE_FLAG_HIL_ENABLED:          "MAV_MODE_FLAG_HIL_ENABLED",
@@ -41,7 +52,7 @@ var labels_MAV_MODE_FLAG = map[MAV_MODE_FLAG]string{
 	MAV_MODE_FLAG_CUSTOM_MODE_ENABLED:  "MAV_MODE_FLAG_CUSTOM_MODE_ENABLED",
 }
 
-var values_MAV_MODE_FLAG = map[string]MAV_MODE_FLAG{
+var label_to_value_MAV_MODE_FLAG = map[string]MAV_MODE_FLAG{
 	"MAV_MODE_FLAG_SAFETY_ARMED":         MAV_MODE_FLAG_SAFETY_ARMED,
 	"MAV_MODE_FLAG_MANUAL_INPUT_ENABLED": MAV_MODE_FLAG_MANUAL_INPUT_ENABLED,
 	"MAV_MODE_FLAG_HIL_ENABLED":          MAV_MODE_FLAG_HIL_ENABLED,
@@ -58,10 +69,9 @@ func (e MAV_MODE_FLAG) MarshalText() ([]byte, error) {
 		return []byte("0"), nil
 	}
 	var names []string
-	for i := 0; i < 8; i++ {
-		mask := MAV_MODE_FLAG(1 << i)
-		if e&mask == mask {
-			names = append(names, labels_MAV_MODE_FLAG[mask])
+	for _, val := range values_MAV_MODE_FLAG {
+		if e&val == val {
+			names = append(names, value_to_label_MAV_MODE_FLAG[val])
 		}
 	}
 	return []byte(strings.Join(names, " | ")), nil
@@ -72,7 +82,7 @@ func (e *MAV_MODE_FLAG) UnmarshalText(text []byte) error {
 	labels := strings.Split(string(text), " | ")
 	var mask MAV_MODE_FLAG
 	for _, label := range labels {
-		if value, ok := values_MAV_MODE_FLAG[label]; ok {
+		if value, ok := label_to_value_MAV_MODE_FLAG[label]; ok {
 			mask |= value
 		} else if value, err := strconv.Atoi(label); err == nil {
 			mask |= MAV_MODE_FLAG(value)

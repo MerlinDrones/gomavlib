@@ -7,9 +7,14 @@ import (
 	"strconv"
 )
 
-// Component ids (values) for the different types and instances of onboard hardware/software that might make up a MAVLink system (autopilot, cameras, servos, GPS systems, avoidance systems etc.).
-// Components must use the appropriate ID in their source address when sending messages. Components can also use IDs to determine if they are the intended recipient of an incoming message. The MAV_COMP_ID_ALL value is used to indicate messages that must be processed by all components.
-// When creating new entries, components that can have multiple instances (e.g. cameras, servos etc.) should be allocated sequential values. An appropriate number of values should be left free after these components to allow the number of instances to be expanded.
+// Legacy component ID values for particular types of hardware/software that might make up a MAVLink system (autopilot, cameras, servos, avoidance systems etc.).
+// Components are not required or expected to use IDs with names that correspond to their type or function, but may choose to do so.
+// Using an ID that matches the type may slightly reduce the chances of component id clashes, as, for historical reasons, it is less likely to be used by some other type of component.
+// System integration will still need to ensure that all components have unique IDs.
+// Component IDs are used for addressing messages to a particular component within a system.
+// A component can use any unique ID between 1 and 255 (MAV_COMP_ID_ALL value is the broadcast address, used to send to all components).
+// Historically component ID were also used for identifying the type of component.
+// New code must not use component IDs to infer the component type, but instead check the MAV_TYPE in the HEARTBEAT message!
 type MAV_COMPONENT uint64
 
 const (
@@ -179,6 +184,12 @@ const (
 	MAV_COMP_ID_CAMERA5 MAV_COMPONENT = 104
 	// Camera #6.
 	MAV_COMP_ID_CAMERA6 MAV_COMPONENT = 105
+	// Radio #1.
+	MAV_COMP_ID_RADIO MAV_COMPONENT = 110
+	// Radio #2.
+	MAV_COMP_ID_RADIO2 MAV_COMPONENT = 111
+	// Radio #3.
+	MAV_COMP_ID_RADIO3 MAV_COMPONENT = 112
 	// Servo #1.
 	MAV_COMP_ID_SERVO1 MAV_COMPONENT = 140
 	// Servo #2.
@@ -287,7 +298,7 @@ const (
 	MAV_COMP_ID_SYSTEM_CONTROL MAV_COMPONENT = 250
 )
 
-var labels_MAV_COMPONENT = map[MAV_COMPONENT]string{
+var value_to_label_MAV_COMPONENT = map[MAV_COMPONENT]string{
 	MAV_COMP_ID_ALL:                      "MAV_COMP_ID_ALL",
 	MAV_COMP_ID_AUTOPILOT1:               "MAV_COMP_ID_AUTOPILOT1",
 	MAV_COMP_ID_USER1:                    "MAV_COMP_ID_USER1",
@@ -371,6 +382,9 @@ var labels_MAV_COMPONENT = map[MAV_COMPONENT]string{
 	MAV_COMP_ID_CAMERA4:                  "MAV_COMP_ID_CAMERA4",
 	MAV_COMP_ID_CAMERA5:                  "MAV_COMP_ID_CAMERA5",
 	MAV_COMP_ID_CAMERA6:                  "MAV_COMP_ID_CAMERA6",
+	MAV_COMP_ID_RADIO:                    "MAV_COMP_ID_RADIO",
+	MAV_COMP_ID_RADIO2:                   "MAV_COMP_ID_RADIO2",
+	MAV_COMP_ID_RADIO3:                   "MAV_COMP_ID_RADIO3",
 	MAV_COMP_ID_SERVO1:                   "MAV_COMP_ID_SERVO1",
 	MAV_COMP_ID_SERVO2:                   "MAV_COMP_ID_SERVO2",
 	MAV_COMP_ID_SERVO3:                   "MAV_COMP_ID_SERVO3",
@@ -426,7 +440,7 @@ var labels_MAV_COMPONENT = map[MAV_COMPONENT]string{
 	MAV_COMP_ID_SYSTEM_CONTROL:           "MAV_COMP_ID_SYSTEM_CONTROL",
 }
 
-var values_MAV_COMPONENT = map[string]MAV_COMPONENT{
+var label_to_value_MAV_COMPONENT = map[string]MAV_COMPONENT{
 	"MAV_COMP_ID_ALL":                      MAV_COMP_ID_ALL,
 	"MAV_COMP_ID_AUTOPILOT1":               MAV_COMP_ID_AUTOPILOT1,
 	"MAV_COMP_ID_USER1":                    MAV_COMP_ID_USER1,
@@ -510,6 +524,9 @@ var values_MAV_COMPONENT = map[string]MAV_COMPONENT{
 	"MAV_COMP_ID_CAMERA4":                  MAV_COMP_ID_CAMERA4,
 	"MAV_COMP_ID_CAMERA5":                  MAV_COMP_ID_CAMERA5,
 	"MAV_COMP_ID_CAMERA6":                  MAV_COMP_ID_CAMERA6,
+	"MAV_COMP_ID_RADIO":                    MAV_COMP_ID_RADIO,
+	"MAV_COMP_ID_RADIO2":                   MAV_COMP_ID_RADIO2,
+	"MAV_COMP_ID_RADIO3":                   MAV_COMP_ID_RADIO3,
 	"MAV_COMP_ID_SERVO1":                   MAV_COMP_ID_SERVO1,
 	"MAV_COMP_ID_SERVO2":                   MAV_COMP_ID_SERVO2,
 	"MAV_COMP_ID_SERVO3":                   MAV_COMP_ID_SERVO3,
@@ -567,7 +584,7 @@ var values_MAV_COMPONENT = map[string]MAV_COMPONENT{
 
 // MarshalText implements the encoding.TextMarshaler interface.
 func (e MAV_COMPONENT) MarshalText() ([]byte, error) {
-	if name, ok := labels_MAV_COMPONENT[e]; ok {
+	if name, ok := value_to_label_MAV_COMPONENT[e]; ok {
 		return []byte(name), nil
 	}
 	return []byte(strconv.Itoa(int(e))), nil
@@ -575,7 +592,7 @@ func (e MAV_COMPONENT) MarshalText() ([]byte, error) {
 
 // UnmarshalText implements the encoding.TextUnmarshaler interface.
 func (e *MAV_COMPONENT) UnmarshalText(text []byte) error {
-	if value, ok := values_MAV_COMPONENT[string(text)]; ok {
+	if value, ok := label_to_value_MAV_COMPONENT[string(text)]; ok {
 		*e = value
 	} else if value, err := strconv.Atoi(string(text)); err == nil {
 		*e = MAV_COMPONENT(value)

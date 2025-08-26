@@ -6,8 +6,8 @@ import (
 	"testing"
 )
 
-func TestEnum_MAV_PROTOCOL_CAPABILITY(t *testing.T) {
-	var e MAV_PROTOCOL_CAPABILITY
+func TestEnum_REBOOT_SHUTDOWN_ACTION(t *testing.T) {
+	var e REBOOT_SHUTDOWN_ACTION
 	e.UnmarshalText([]byte{})
 	e.MarshalText()
 	e.String()

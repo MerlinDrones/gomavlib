@@ -12,8 +12,6 @@ import (
 type ESC_FAILURE_FLAGS uint64
 
 const (
-	// No ESC failure.
-	ESC_FAILURE_NONE ESC_FAILURE_FLAGS = 0
 	// Over current failure.
 	ESC_FAILURE_OVER_CURRENT ESC_FAILURE_FLAGS = 1
 	// Over voltage failure.
@@ -30,8 +28,17 @@ const (
 	ESC_FAILURE_GENERIC ESC_FAILURE_FLAGS = 64
 )
 
-var labels_ESC_FAILURE_FLAGS = map[ESC_FAILURE_FLAGS]string{
-	ESC_FAILURE_NONE:             "ESC_FAILURE_NONE",
+var values_ESC_FAILURE_FLAGS = []ESC_FAILURE_FLAGS{
+	ESC_FAILURE_OVER_CURRENT,
+	ESC_FAILURE_OVER_VOLTAGE,
+	ESC_FAILURE_OVER_TEMPERATURE,
+	ESC_FAILURE_OVER_RPM,
+	ESC_FAILURE_INCONSISTENT_CMD,
+	ESC_FAILURE_MOTOR_STUCK,
+	ESC_FAILURE_GENERIC,
+}
+
+var value_to_label_ESC_FAILURE_FLAGS = map[ESC_FAILURE_FLAGS]string{
 	ESC_FAILURE_OVER_CURRENT:     "ESC_FAILURE_OVER_CURRENT",
 	ESC_FAILURE_OVER_VOLTAGE:     "ESC_FAILURE_OVER_VOLTAGE",
 	ESC_FAILURE_OVER_TEMPERATURE: "ESC_FAILURE_OVER_TEMPERATURE",
@@ -41,8 +48,7 @@ var labels_ESC_FAILURE_FLAGS = map[ESC_FAILURE_FLAGS]string{
 	ESC_FAILURE_GENERIC:          "ESC_FAILURE_GENERIC",
 }
 
-var values_ESC_FAILURE_FLAGS = map[string]ESC_FAILURE_FLAGS{
-	"ESC_FAILURE_NONE":             ESC_FAILURE_NONE,
+var label_to_value_ESC_FAILURE_FLAGS = map[string]ESC_FAILURE_FLAGS{
 	"ESC_FAILURE_OVER_CURRENT":     ESC_FAILURE_OVER_CURRENT,
 	"ESC_FAILURE_OVER_VOLTAGE":     ESC_FAILURE_OVER_VOLTAGE,
 	"ESC_FAILURE_OVER_TEMPERATURE": ESC_FAILURE_OVER_TEMPERATURE,
@@ -58,10 +64,9 @@ func (e ESC_FAILURE_FLAGS) MarshalText() ([]byte, error) {
 		return []byte("0"), nil
 	}
 	var names []string
-	for i := 0; i < 8; i++ {
-		mask := ESC_FAILURE_FLAGS(1 << i)
-		if e&mask == mask {
-			names = append(names, labels_ESC_FAILURE_FLAGS[mask])
+	for _, val := range values_ESC_FAILURE_FLAGS {
+		if e&val == val {
+			names = append(names, value_to_label_ESC_FAILURE_FLAGS[val])
 		}
 	}
 	return []byte(strings.Join(names, " | ")), nil
@@ -72,7 +77,7 @@ func (e *ESC_FAILURE_FLAGS) UnmarshalText(text []byte) error {
 	labels := strings.Split(string(text), " | ")
 	var mask ESC_FAILURE_FLAGS
 	for _, label := range labels {
-		if value, ok := values_ESC_FAILURE_FLAGS[label]; ok {
+		if value, ok := label_to_value_ESC_FAILURE_FLAGS[label]; ok {
 			mask |= value
 		} else if value, err := strconv.Atoi(label); err == nil {
 			mask |= ESC_FAILURE_FLAGS(value)

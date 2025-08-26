@@ -51,7 +51,7 @@ const (
 	MAV_CMD_NAV_VTOL_TAKEOFF MAV_CMD = 84
 	// Land using VTOL mode
 	MAV_CMD_NAV_VTOL_LAND MAV_CMD = 85
-	// hand control over to an external controller
+	// Hand control over to an external controller
 	MAV_CMD_NAV_GUIDED_ENABLE MAV_CMD = 92
 	// Delay the next navigation command a number of seconds or until a specified time
 	MAV_CMD_NAV_DELAY MAV_CMD = 93
@@ -112,9 +112,13 @@ const (
 	// If specified, the item defines the waypoint at which the return segment starts.
 	// If sent using as a command, the vehicle will perform a mission landing (using the land segment if defined) or reject the command if mission landings are not supported, or no mission landing is defined. When used as a command any position information in the command is ignored.
 	MAV_CMD_DO_RETURN_PATH_START MAV_CMD = 188
-	// Mission command to perform a landing. This is used as a marker in a mission to tell the autopilot where a sequence of mission items that represents a landing starts.
-	// It may also be sent via a COMMAND_LONG to trigger a landing, in which case the nearest (geographically) landing sequence in the mission will be used.
-	// The Latitude/Longitude/Altitude is optional, and may be set to 0 if not needed. If specified then it will be used to help find the closest landing sequence.
+	// Mission item to mark the start of a mission landing pattern, or a command to land with a mission landing pattern.
+	// When used in a mission, this is a marker for the start of a sequence of mission items that represent a landing pattern.
+	// It should be followed by a navigation item that defines the first waypoint of the landing sequence.
+	// The start marker positional params are used only for selecting what landing pattern to use if several are defined in the mission (the selected pattern will be the one with the marker position that is closest to the vehicle when a landing is commanded).
+	// If the marker item position has zero-values for latitude, longitude, and altitude, then landing pattern selection is instead based on the position of the first waypoint in the landing sequence.
+	// When sent as a command it triggers a landing using a mission landing pattern.
+	// The location parameters are not used in this case, and should be set to 0.
 	MAV_CMD_DO_LAND_START MAV_CMD = 189
 	// Mission command to perform a landing from a rally point.
 	MAV_CMD_DO_RALLY_LAND MAV_CMD = 190
@@ -203,9 +207,13 @@ const (
 	MAV_CMD_OVERRIDE_GOTO MAV_CMD = 252
 	// Mission command to set a Camera Auto Mount Pivoting Oblique Survey (Replaces CAM_TRIGG_DIST for this purpose). The camera is triggered each time this distance is exceeded, then the mount moves to the next position. Params 4~6 set-up the angle limits and number of positions for oblique survey, where mount-enabled vehicles automatically roll the camera between shots to emulate an oblique camera setup (providing an increased HFOV). This command can also be used to set the shutter integration time for the camera.
 	MAV_CMD_OBLIQUE_SURVEY MAV_CMD = 260
+	// Enable the specified standard MAVLink mode.
+	// If the specified mode is not supported, the vehicle should ACK with MAV_RESULT_FAILED.
+	// See https://mavlink.io/en/services/standard_modes.html
+	MAV_CMD_DO_SET_STANDARD_MODE MAV_CMD = 262
 	// start running a mission
 	MAV_CMD_MISSION_START MAV_CMD = 300
-	// Actuator testing command. This is similar to MAV_CMD_DO_MOTOR_TEST but operates on the level of output functions, i.e. it is possible to test Motor1 independent from which output it is configured on. Autopilots typically refuse this command while armed.
+	// Actuator testing command. This is similar to MAV_CMD_DO_MOTOR_TEST but operates on the level of output functions, i.e. it is possible to test Motor1 independent from which output it is configured on. Autopilots must NACK this command with MAV_RESULT_TEMPORARILY_REJECTED while armed.
 	MAV_CMD_ACTUATOR_TEST MAV_CMD = 310
 	// Actuator configuration command.
 	MAV_CMD_CONFIGURE_ACTUATOR MAV_CMD = 311
@@ -343,8 +351,10 @@ const (
 	// Fence return point (there can only be one such point in a geofence definition). If rally points are supported they should be used instead.
 	MAV_CMD_NAV_FENCE_RETURN_POINT MAV_CMD = 5000
 	// Fence vertex for an inclusion polygon (the polygon must not be self-intersecting). The vehicle must stay within this area. Minimum of 3 vertices required.
+	// The vertices for a polygon must be sent sequentially, each with param1 set to the total number of vertices in the polygon.
 	MAV_CMD_NAV_FENCE_POLYGON_VERTEX_INCLUSION MAV_CMD = 5001
 	// Fence vertex for an exclusion polygon (the polygon must not be self-intersecting). The vehicle must stay outside this area. Minimum of 3 vertices required.
+	// The vertices for a polygon must be sent sequentially, each with param1 set to the total number of vertices in the polygon.
 	MAV_CMD_NAV_FENCE_POLYGON_VERTEX_EXCLUSION MAV_CMD = 5002
 	// Circular fence area. The vehicle must stay inside this area.
 	MAV_CMD_NAV_FENCE_CIRCLE_INCLUSION MAV_CMD = 5003
@@ -402,7 +412,7 @@ const (
 	MAV_CMD_CAN_FORWARD MAV_CMD = 32000
 )
 
-var labels_MAV_CMD = map[MAV_CMD]string{
+var value_to_label_MAV_CMD = map[MAV_CMD]string{
 	MAV_CMD_NAV_WAYPOINT:                       "MAV_CMD_NAV_WAYPOINT",
 	MAV_CMD_NAV_LOITER_UNLIM:                   "MAV_CMD_NAV_LOITER_UNLIM",
 	MAV_CMD_NAV_LOITER_TURNS:                   "MAV_CMD_NAV_LOITER_TURNS",
@@ -483,6 +493,7 @@ var labels_MAV_CMD = map[MAV_CMD]string{
 	MAV_CMD_PREFLIGHT_REBOOT_SHUTDOWN:          "MAV_CMD_PREFLIGHT_REBOOT_SHUTDOWN",
 	MAV_CMD_OVERRIDE_GOTO:                      "MAV_CMD_OVERRIDE_GOTO",
 	MAV_CMD_OBLIQUE_SURVEY:                     "MAV_CMD_OBLIQUE_SURVEY",
+	MAV_CMD_DO_SET_STANDARD_MODE:               "MAV_CMD_DO_SET_STANDARD_MODE",
 	MAV_CMD_MISSION_START:                      "MAV_CMD_MISSION_START",
 	MAV_CMD_ACTUATOR_TEST:                      "MAV_CMD_ACTUATOR_TEST",
 	MAV_CMD_CONFIGURE_ACTUATOR:                 "MAV_CMD_CONFIGURE_ACTUATOR",
@@ -569,7 +580,7 @@ var labels_MAV_CMD = map[MAV_CMD]string{
 	MAV_CMD_CAN_FORWARD:                        "MAV_CMD_CAN_FORWARD",
 }
 
-var values_MAV_CMD = map[string]MAV_CMD{
+var label_to_value_MAV_CMD = map[string]MAV_CMD{
 	"MAV_CMD_NAV_WAYPOINT":                       MAV_CMD_NAV_WAYPOINT,
 	"MAV_CMD_NAV_LOITER_UNLIM":                   MAV_CMD_NAV_LOITER_UNLIM,
 	"MAV_CMD_NAV_LOITER_TURNS":                   MAV_CMD_NAV_LOITER_TURNS,
@@ -650,6 +661,7 @@ var values_MAV_CMD = map[string]MAV_CMD{
 	"MAV_CMD_PREFLIGHT_REBOOT_SHUTDOWN":          MAV_CMD_PREFLIGHT_REBOOT_SHUTDOWN,
 	"MAV_CMD_OVERRIDE_GOTO":                      MAV_CMD_OVERRIDE_GOTO,
 	"MAV_CMD_OBLIQUE_SURVEY":                     MAV_CMD_OBLIQUE_SURVEY,
+	"MAV_CMD_DO_SET_STANDARD_MODE":               MAV_CMD_DO_SET_STANDARD_MODE,
 	"MAV_CMD_MISSION_START":                      MAV_CMD_MISSION_START,
 	"MAV_CMD_ACTUATOR_TEST":                      MAV_CMD_ACTUATOR_TEST,
 	"MAV_CMD_CONFIGURE_ACTUATOR":                 MAV_CMD_CONFIGURE_ACTUATOR,
@@ -738,7 +750,7 @@ var values_MAV_CMD = map[string]MAV_CMD{
 
 // MarshalText implements the encoding.TextMarshaler interface.
 func (e MAV_CMD) MarshalText() ([]byte, error) {
-	if name, ok := labels_MAV_CMD[e]; ok {
+	if name, ok := value_to_label_MAV_CMD[e]; ok {
 		return []byte(name), nil
 	}
 	return []byte(strconv.Itoa(int(e))), nil
@@ -746,7 +758,7 @@ func (e MAV_CMD) MarshalText() ([]byte, error) {
 
 // UnmarshalText implements the encoding.TextUnmarshaler interface.
 func (e *MAV_CMD) UnmarshalText(text []byte) error {
-	if value, ok := values_MAV_CMD[string(text)]; ok {
+	if value, ok := label_to_value_MAV_CMD[string(text)]; ok {
 		*e = value
 	} else if value, err := strconv.Atoi(string(text)); err == nil {
 		*e = MAV_CMD(value)
