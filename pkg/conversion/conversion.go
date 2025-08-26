@@ -229,6 +229,50 @@ var dialectTypeToGo = map[string]string{
 	"char":     "string",
 }
 
+var rePow = regexp.MustCompile(`^\s*(\d+)\s*\*\*\s*(\d+)\s*$`)
+
+func powUint(base, exp uint64) uint64 {
+	var res uint64 = 1
+	for exp > 0 {
+		if exp&1 == 1 {
+			res *= base
+		}
+		base *= base
+		exp >>= 1
+	}
+	return res
+}
+
+// parseEnumUint parses MAVLink enum numeric literals, including:
+//   - decimal: "123"
+//   - hex:     "0x10000"
+//   - binary:  "0b0010"
+//   - power:   "2**4"
+func parseEnumUint(s string) (uint64, error) {
+	ss := strings.TrimSpace(s)
+
+	if m := rePow.FindStringSubmatch(ss); m != nil {
+		b, err := strconv.ParseUint(m[1], 10, 64)
+		if err != nil {
+			return 0, err
+		}
+		e, err := strconv.ParseUint(m[2], 10, 64)
+		if err != nil {
+			return 0, err
+		}
+		return powUint(b, e), nil
+	}
+
+	switch {
+	case strings.HasPrefix(ss, "0b") || strings.HasPrefix(ss, "0B"):
+		return strconv.ParseUint(ss[2:], 2, 64)
+	case strings.HasPrefix(ss, "0x") || strings.HasPrefix(ss, "0X"):
+		return strconv.ParseUint(ss[2:], 16, 64)
+	default:
+		return strconv.ParseUint(ss, 10, 64)
+	}
+}
+
 func defAddrToName(pa string) string {
 	var b string
 	u, err := url.ParseRequestURI(pa)
@@ -381,7 +425,10 @@ func processDefinition(
 		}
 
 		for _, entry := range enum.Entries {
-			var v uint64
+			v, err := parseEnumUint(entry.Value)
+			if err != nil {
+				return nil, err
+			}
 
 			switch {
 			case strings.HasPrefix(entry.Value, "0b"):
@@ -641,8 +688,8 @@ func writeMessage(
 func Convert(path string, link bool) error {
 	version := ""
 	processedDefs := make(map[string]struct{})
-	_, err := url.ParseRequestURI(path)
-	isRemote := (err == nil)
+	u, err := url.Parse(path)
+	isRemote := u != nil && (u.Scheme == "http" || u.Scheme == "https")
 	defName := defAddrToName(path)
 
 	_, err = os.Stat(defName)
