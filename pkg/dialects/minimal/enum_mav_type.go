@@ -99,11 +99,21 @@ const (
 	MAV_TYPE_WINCH MAV_TYPE = 42
 	// Generic multirotor that does not fit into a specific type or whose type is unknown
 	MAV_TYPE_GENERIC_MULTIROTOR MAV_TYPE = 43
-	// Illuminator. An illuminator is a light source that is used for lighting up dark areas external to the sytstem: e.g. a torch or searchlight (as opposed to a light source for illuminating the system itself, e.g. an indicator light).
+	// Illuminator. An illuminator is a light source that is used for lighting up dark areas external to the system: e.g. a torch or searchlight (as opposed to a light source for illuminating the system itself, e.g. an indicator light).
 	MAV_TYPE_ILLUMINATOR MAV_TYPE = 44
+	// Orbiter spacecraft. Includes satellites orbiting terrestrial and extra-terrestrial bodies. Follows NASA Spacecraft Classification.
+	MAV_TYPE_SPACECRAFT_ORBITER MAV_TYPE = 45
+	// A generic four-legged ground vehicle (e.g., a robot dog).
+	MAV_TYPE_GROUND_QUADRUPED MAV_TYPE = 46
+	// VTOL hybrid of helicopter and autogyro. It has a main rotor for lift and separate propellers for forward flight. The rotor must be powered for hover but can autorotate in cruise flight. See: https://en.wikipedia.org/wiki/Gyrodyne
+	MAV_TYPE_VTOL_GYRODYNE MAV_TYPE = 47
+	// Gripper
+	MAV_TYPE_GRIPPER MAV_TYPE = 48
+	// Radio
+	MAV_TYPE_RADIO MAV_TYPE = 49
 )
 
-var labels_MAV_TYPE = map[MAV_TYPE]string{
+var value_to_label_MAV_TYPE = map[MAV_TYPE]string{
 	MAV_TYPE_GENERIC:                   "MAV_TYPE_GENERIC",
 	MAV_TYPE_FIXED_WING:                "MAV_TYPE_FIXED_WING",
 	MAV_TYPE_QUADROTOR:                 "MAV_TYPE_QUADROTOR",
@@ -149,9 +159,14 @@ var labels_MAV_TYPE = map[MAV_TYPE]string{
 	MAV_TYPE_WINCH:                     "MAV_TYPE_WINCH",
 	MAV_TYPE_GENERIC_MULTIROTOR:        "MAV_TYPE_GENERIC_MULTIROTOR",
 	MAV_TYPE_ILLUMINATOR:               "MAV_TYPE_ILLUMINATOR",
+	MAV_TYPE_SPACECRAFT_ORBITER:        "MAV_TYPE_SPACECRAFT_ORBITER",
+	MAV_TYPE_GROUND_QUADRUPED:          "MAV_TYPE_GROUND_QUADRUPED",
+	MAV_TYPE_VTOL_GYRODYNE:             "MAV_TYPE_VTOL_GYRODYNE",
+	MAV_TYPE_GRIPPER:                   "MAV_TYPE_GRIPPER",
+	MAV_TYPE_RADIO:                     "MAV_TYPE_RADIO",
 }
 
-var values_MAV_TYPE = map[string]MAV_TYPE{
+var label_to_value_MAV_TYPE = map[string]MAV_TYPE{
 	"MAV_TYPE_GENERIC":                   MAV_TYPE_GENERIC,
 	"MAV_TYPE_FIXED_WING":                MAV_TYPE_FIXED_WING,
 	"MAV_TYPE_QUADROTOR":                 MAV_TYPE_QUADROTOR,
@@ -197,11 +212,16 @@ var values_MAV_TYPE = map[string]MAV_TYPE{
 	"MAV_TYPE_WINCH":                     MAV_TYPE_WINCH,
 	"MAV_TYPE_GENERIC_MULTIROTOR":        MAV_TYPE_GENERIC_MULTIROTOR,
 	"MAV_TYPE_ILLUMINATOR":               MAV_TYPE_ILLUMINATOR,
+	"MAV_TYPE_SPACECRAFT_ORBITER":        MAV_TYPE_SPACECRAFT_ORBITER,
+	"MAV_TYPE_GROUND_QUADRUPED":          MAV_TYPE_GROUND_QUADRUPED,
+	"MAV_TYPE_VTOL_GYRODYNE":             MAV_TYPE_VTOL_GYRODYNE,
+	"MAV_TYPE_GRIPPER":                   MAV_TYPE_GRIPPER,
+	"MAV_TYPE_RADIO":                     MAV_TYPE_RADIO,
 }
 
 // MarshalText implements the encoding.TextMarshaler interface.
 func (e MAV_TYPE) MarshalText() ([]byte, error) {
-	if name, ok := labels_MAV_TYPE[e]; ok {
+	if name, ok := value_to_label_MAV_TYPE[e]; ok {
 		return []byte(name), nil
 	}
 	return []byte(strconv.Itoa(int(e))), nil
@@ -209,7 +229,7 @@ func (e MAV_TYPE) MarshalText() ([]byte, error) {
 
 // UnmarshalText implements the encoding.TextUnmarshaler interface.
 func (e *MAV_TYPE) UnmarshalText(text []byte) error {
-	if value, ok := values_MAV_TYPE[string(text)]; ok {
+	if value, ok := label_to_value_MAV_TYPE[string(text)]; ok {
 		*e = value
 	} else if value, err := strconv.Atoi(string(text)); err == nil {
 		*e = MAV_TYPE(value)

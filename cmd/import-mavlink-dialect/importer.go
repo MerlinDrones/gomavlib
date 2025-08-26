@@ -13,7 +13,7 @@ import (
 var cli struct {
 	Link  bool   `help:"Link included definitions instead of including them into the main definition"`
 	XML   string `arg:"" help:"Path or URL pointing to a XML MAVLink dialect"`
-	Out   string `help:"Output base directory for generated files (default: pkg/dialects).The dialect will be placed in a subfolder named after the XML (e.g.,swarmos.xml → pkg/dialects/swarmos)" default:"pkg/dialects"`
+	Out   string `help:"Output base directory for generated files (default: pkg/dialects). The dialect will be placed in a subfolder named after the XML (e.g., swarmos.xml → pkg/dialects/swarmos)" default:"pkg/dialects"`
 	Force bool   `help:"Remove any existing output directory before generating"`
 }
 
@@ -32,21 +32,19 @@ func run(args []string) error {
 		return err
 	}
 
-	// Capture current working dir (where the user ran the command).
+	// Capture cwd (where the user ran the command).
 	cwd, err := os.Getwd()
 	if err != nil {
 		return fmt.Errorf("failed to get current working dir: %w", err)
 	}
 
 	// Resolve XML input:
-	// - If it's a URL, leave it as-is.
-	// - If it's a relative path, make it absolute against the *original* cwd.
 	xmlInput := cli.XML
 	if !isURL(xmlInput) && !filepath.IsAbs(xmlInput) {
 		xmlInput = filepath.Join(cwd, xmlInput)
 	}
 
-	// Dialect directory name = xml filename without extension.
+	// Dialect dir = xml filename without extension.
 	baseName := filepath.Base(cli.XML)
 	dialectDir := strings.TrimSuffix(baseName, filepath.Ext(baseName))
 
@@ -74,7 +72,7 @@ func run(args []string) error {
 	}
 	defer os.Chdir(prevCwd)
 
-	// Use the absolute XML input so chdir doesn't break relative resolution.
+	// Call the converter: this now handles includes + fallback automatically.
 	if err := conversion.Convert(xmlInput, cli.Link); err != nil {
 		return err
 	}

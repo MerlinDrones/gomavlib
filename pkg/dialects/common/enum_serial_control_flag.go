@@ -24,7 +24,15 @@ const (
 	SERIAL_CONTROL_FLAG_MULTI SERIAL_CONTROL_FLAG = 16
 )
 
-var labels_SERIAL_CONTROL_FLAG = map[SERIAL_CONTROL_FLAG]string{
+var values_SERIAL_CONTROL_FLAG = []SERIAL_CONTROL_FLAG{
+	SERIAL_CONTROL_FLAG_REPLY,
+	SERIAL_CONTROL_FLAG_RESPOND,
+	SERIAL_CONTROL_FLAG_EXCLUSIVE,
+	SERIAL_CONTROL_FLAG_BLOCKING,
+	SERIAL_CONTROL_FLAG_MULTI,
+}
+
+var value_to_label_SERIAL_CONTROL_FLAG = map[SERIAL_CONTROL_FLAG]string{
 	SERIAL_CONTROL_FLAG_REPLY:     "SERIAL_CONTROL_FLAG_REPLY",
 	SERIAL_CONTROL_FLAG_RESPOND:   "SERIAL_CONTROL_FLAG_RESPOND",
 	SERIAL_CONTROL_FLAG_EXCLUSIVE: "SERIAL_CONTROL_FLAG_EXCLUSIVE",
@@ -32,7 +40,7 @@ var labels_SERIAL_CONTROL_FLAG = map[SERIAL_CONTROL_FLAG]string{
 	SERIAL_CONTROL_FLAG_MULTI:     "SERIAL_CONTROL_FLAG_MULTI",
 }
 
-var values_SERIAL_CONTROL_FLAG = map[string]SERIAL_CONTROL_FLAG{
+var label_to_value_SERIAL_CONTROL_FLAG = map[string]SERIAL_CONTROL_FLAG{
 	"SERIAL_CONTROL_FLAG_REPLY":     SERIAL_CONTROL_FLAG_REPLY,
 	"SERIAL_CONTROL_FLAG_RESPOND":   SERIAL_CONTROL_FLAG_RESPOND,
 	"SERIAL_CONTROL_FLAG_EXCLUSIVE": SERIAL_CONTROL_FLAG_EXCLUSIVE,
@@ -46,10 +54,9 @@ func (e SERIAL_CONTROL_FLAG) MarshalText() ([]byte, error) {
 		return []byte("0"), nil
 	}
 	var names []string
-	for i := 0; i < 5; i++ {
-		mask := SERIAL_CONTROL_FLAG(1 << i)
-		if e&mask == mask {
-			names = append(names, labels_SERIAL_CONTROL_FLAG[mask])
+	for _, val := range values_SERIAL_CONTROL_FLAG {
+		if e&val == val {
+			names = append(names, value_to_label_SERIAL_CONTROL_FLAG[val])
 		}
 	}
 	return []byte(strings.Join(names, " | ")), nil
@@ -60,7 +67,7 @@ func (e *SERIAL_CONTROL_FLAG) UnmarshalText(text []byte) error {
 	labels := strings.Split(string(text), " | ")
 	var mask SERIAL_CONTROL_FLAG
 	for _, label := range labels {
-		if value, ok := values_SERIAL_CONTROL_FLAG[label]; ok {
+		if value, ok := label_to_value_SERIAL_CONTROL_FLAG[label]; ok {
 			mask |= value
 		} else if value, err := strconv.Atoi(label); err == nil {
 			mask |= SERIAL_CONTROL_FLAG(value)

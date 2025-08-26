@@ -14,7 +14,7 @@ type MessageCameraImageCaptured struct {
 	TimeBootMs uint32
 	// Timestamp (time since UNIX epoch) in UTC. 0 for unknown.
 	TimeUtc uint64
-	// Deprecated/unused. Component IDs are used to differentiate multiple cameras.
+	// Camera id of a non-MAVLink camera attached to an autopilot (1-6).  0 if the component is a MAVLink camera (with its own component id). Field name is usually camera_device_id.
 	CameraId uint8
 	// Latitude where image was taken
 	Lat int32
@@ -28,8 +28,8 @@ type MessageCameraImageCaptured struct {
 	Q [4]float32
 	// Zero based index of this image (i.e. a new image will have index CAMERA_CAPTURE_STATUS.image count -1)
 	ImageIndex int32
-	// Boolean indicating success (1) or failure (0) while capturing this image.
-	CaptureResult int8
+	// Image was captured successfully (MAV_BOOL_TRUE). Values not equal to 0 or 1 are invalid.
+	CaptureResult MAV_BOOL `mavenum:"int8"`
 	// URL of image taken. Either local storage or http://foo.jpg if camera provides an HTTP interface.
 	FileUrl string `mavlen:"205"`
 }

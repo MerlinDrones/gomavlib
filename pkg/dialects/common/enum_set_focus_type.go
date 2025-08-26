@@ -13,7 +13,7 @@ type SET_FOCUS_TYPE uint64
 const (
 	// Focus one step increment (-1 for focusing in, 1 for focusing out towards infinity).
 	FOCUS_TYPE_STEP SET_FOCUS_TYPE = 0
-	// Continuous focus up/down until stopped (-1 for focusing in, 1 for focusing out towards infinity, 0 to stop focusing)
+	// Continuous normalized focus in/out rate until stopped. Range -1..1, negative: in, positive: out towards infinity, 0 to stop focusing. Other values should be clipped to the range.
 	FOCUS_TYPE_CONTINUOUS SET_FOCUS_TYPE = 1
 	// Focus value as proportion of full camera focus range (a value between 0.0 and 100.0)
 	FOCUS_TYPE_RANGE SET_FOCUS_TYPE = 2
@@ -27,7 +27,7 @@ const (
 	FOCUS_TYPE_AUTO_CONTINUOUS SET_FOCUS_TYPE = 6
 )
 
-var labels_SET_FOCUS_TYPE = map[SET_FOCUS_TYPE]string{
+var value_to_label_SET_FOCUS_TYPE = map[SET_FOCUS_TYPE]string{
 	FOCUS_TYPE_STEP:            "FOCUS_TYPE_STEP",
 	FOCUS_TYPE_CONTINUOUS:      "FOCUS_TYPE_CONTINUOUS",
 	FOCUS_TYPE_RANGE:           "FOCUS_TYPE_RANGE",
@@ -37,7 +37,7 @@ var labels_SET_FOCUS_TYPE = map[SET_FOCUS_TYPE]string{
 	FOCUS_TYPE_AUTO_CONTINUOUS: "FOCUS_TYPE_AUTO_CONTINUOUS",
 }
 
-var values_SET_FOCUS_TYPE = map[string]SET_FOCUS_TYPE{
+var label_to_value_SET_FOCUS_TYPE = map[string]SET_FOCUS_TYPE{
 	"FOCUS_TYPE_STEP":            FOCUS_TYPE_STEP,
 	"FOCUS_TYPE_CONTINUOUS":      FOCUS_TYPE_CONTINUOUS,
 	"FOCUS_TYPE_RANGE":           FOCUS_TYPE_RANGE,
@@ -49,7 +49,7 @@ var values_SET_FOCUS_TYPE = map[string]SET_FOCUS_TYPE{
 
 // MarshalText implements the encoding.TextMarshaler interface.
 func (e SET_FOCUS_TYPE) MarshalText() ([]byte, error) {
-	if name, ok := labels_SET_FOCUS_TYPE[e]; ok {
+	if name, ok := value_to_label_SET_FOCUS_TYPE[e]; ok {
 		return []byte(name), nil
 	}
 	return []byte(strconv.Itoa(int(e))), nil
@@ -57,7 +57,7 @@ func (e SET_FOCUS_TYPE) MarshalText() ([]byte, error) {
 
 // UnmarshalText implements the encoding.TextUnmarshaler interface.
 func (e *SET_FOCUS_TYPE) UnmarshalText(text []byte) error {
-	if value, ok := values_SET_FOCUS_TYPE[string(text)]; ok {
+	if value, ok := label_to_value_SET_FOCUS_TYPE[string(text)]; ok {
 		*e = value
 	} else if value, err := strconv.Atoi(string(text)); err == nil {
 		*e = SET_FOCUS_TYPE(value)

@@ -13,7 +13,7 @@ type CAMERA_ZOOM_TYPE uint64
 const (
 	// Zoom one step increment (-1 for wide, 1 for tele)
 	ZOOM_TYPE_STEP CAMERA_ZOOM_TYPE = 0
-	// Continuous zoom up/down until stopped (-1 for wide, 1 for tele, 0 to stop zooming)
+	// Continuous normalized zoom in/out rate until stopped. Range -1..1, negative: wide, positive: narrow/tele, 0 to stop zooming. Other values should be clipped to the range.
 	ZOOM_TYPE_CONTINUOUS CAMERA_ZOOM_TYPE = 1
 	// Zoom value as proportion of full camera range (a percentage value between 0.0 and 100.0)
 	ZOOM_TYPE_RANGE CAMERA_ZOOM_TYPE = 2
@@ -23,7 +23,7 @@ const (
 	ZOOM_TYPE_HORIZONTAL_FOV CAMERA_ZOOM_TYPE = 4
 )
 
-var labels_CAMERA_ZOOM_TYPE = map[CAMERA_ZOOM_TYPE]string{
+var value_to_label_CAMERA_ZOOM_TYPE = map[CAMERA_ZOOM_TYPE]string{
 	ZOOM_TYPE_STEP:           "ZOOM_TYPE_STEP",
 	ZOOM_TYPE_CONTINUOUS:     "ZOOM_TYPE_CONTINUOUS",
 	ZOOM_TYPE_RANGE:          "ZOOM_TYPE_RANGE",
@@ -31,7 +31,7 @@ var labels_CAMERA_ZOOM_TYPE = map[CAMERA_ZOOM_TYPE]string{
 	ZOOM_TYPE_HORIZONTAL_FOV: "ZOOM_TYPE_HORIZONTAL_FOV",
 }
 
-var values_CAMERA_ZOOM_TYPE = map[string]CAMERA_ZOOM_TYPE{
+var label_to_value_CAMERA_ZOOM_TYPE = map[string]CAMERA_ZOOM_TYPE{
 	"ZOOM_TYPE_STEP":           ZOOM_TYPE_STEP,
 	"ZOOM_TYPE_CONTINUOUS":     ZOOM_TYPE_CONTINUOUS,
 	"ZOOM_TYPE_RANGE":          ZOOM_TYPE_RANGE,
@@ -41,7 +41,7 @@ var values_CAMERA_ZOOM_TYPE = map[string]CAMERA_ZOOM_TYPE{
 
 // MarshalText implements the encoding.TextMarshaler interface.
 func (e CAMERA_ZOOM_TYPE) MarshalText() ([]byte, error) {
-	if name, ok := labels_CAMERA_ZOOM_TYPE[e]; ok {
+	if name, ok := value_to_label_CAMERA_ZOOM_TYPE[e]; ok {
 		return []byte(name), nil
 	}
 	return []byte(strconv.Itoa(int(e))), nil
@@ -49,7 +49,7 @@ func (e CAMERA_ZOOM_TYPE) MarshalText() ([]byte, error) {
 
 // UnmarshalText implements the encoding.TextUnmarshaler interface.
 func (e *CAMERA_ZOOM_TYPE) UnmarshalText(text []byte) error {
-	if value, ok := values_CAMERA_ZOOM_TYPE[string(text)]; ok {
+	if value, ok := label_to_value_CAMERA_ZOOM_TYPE[string(text)]; ok {
 		*e = value
 	} else if value, err := strconv.Atoi(string(text)); err == nil {
 		*e = CAMERA_ZOOM_TYPE(value)
