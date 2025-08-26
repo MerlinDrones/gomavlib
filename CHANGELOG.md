@@ -1,5 +1,18 @@
 # Changelog
 
+## [v0.5.0] – 2025-08-26
+
+### Features
+- **conversion**: add fallback mechanism for MAVLink includes and improve XML processing
+
+### Refactoring
+- **common**: replace `FENCE_ACTION` enums with new enums and improve structure
+
+### Chores
+- bump VERSION to 0.5.0 for v0.5.0
+- Merge tag 'v0.4.0' into develop
+
+
 ## [v0.4.0] – 2025-08-26
 
 ### Features
