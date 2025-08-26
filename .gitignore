@@ -28,7 +28,6 @@ log/*
 uploads/*
 reports/*
 scripts/*
-VERSION
 
 #IDES
 .idea/
