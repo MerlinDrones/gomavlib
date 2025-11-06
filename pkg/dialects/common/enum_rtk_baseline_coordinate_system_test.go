@@ -8,7 +8,7 @@ import (
 
 func TestEnum_RTK_BASELINE_COORDINATE_SYSTEM(t *testing.T) {
 	var e RTK_BASELINE_COORDINATE_SYSTEM
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

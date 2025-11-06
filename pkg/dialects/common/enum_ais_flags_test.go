@@ -8,7 +8,7 @@ import (
 
 func TestEnum_AIS_FLAGS(t *testing.T) {
 	var e AIS_FLAGS
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

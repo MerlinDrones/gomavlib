@@ -8,7 +8,7 @@ import (
 
 func TestEnum_ILLUMINATOR_MODE(t *testing.T) {
 	var e ILLUMINATOR_MODE
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

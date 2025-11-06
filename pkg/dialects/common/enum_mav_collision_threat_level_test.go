@@ -8,7 +8,7 @@ import (
 
 func TestEnum_MAV_COLLISION_THREAT_LEVEL(t *testing.T) {
 	var e MAV_COLLISION_THREAT_LEVEL
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

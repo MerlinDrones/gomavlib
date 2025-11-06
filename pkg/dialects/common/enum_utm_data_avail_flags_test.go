@@ -8,7 +8,7 @@ import (
 
 func TestEnum_UTM_DATA_AVAIL_FLAGS(t *testing.T) {
 	var e UTM_DATA_AVAIL_FLAGS
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

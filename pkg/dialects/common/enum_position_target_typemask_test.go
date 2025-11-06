@@ -8,7 +8,7 @@ import (
 
 func TestEnum_POSITION_TARGET_TYPEMASK(t *testing.T) {
 	var e POSITION_TARGET_TYPEMASK
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

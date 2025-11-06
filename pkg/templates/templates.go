@@ -88,8 +88,8 @@ import (
 
 func TestEnum_{{ .Name }}(t *testing.T) {
 	var e {{ .Name }}
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }
 `))

@@ -8,7 +8,7 @@ import (
 
 func TestEnum_PREFLIGHT_STORAGE_MISSION_ACTION(t *testing.T) {
 	var e PREFLIGHT_STORAGE_MISSION_ACTION
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

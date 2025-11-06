@@ -8,7 +8,7 @@ import (
 
 func TestEnum_UAVCAN_NODE_HEALTH(t *testing.T) {
 	var e UAVCAN_NODE_HEALTH
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

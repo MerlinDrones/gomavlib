@@ -8,7 +8,7 @@ import (
 
 func TestEnum_CELLULAR_STATUS_FLAG(t *testing.T) {
 	var e CELLULAR_STATUS_FLAG
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

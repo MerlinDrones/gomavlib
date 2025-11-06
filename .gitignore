@@ -33,3 +33,5 @@ scripts/*
 .idea/
 .vscode/*
 /Releases.md
+/CLAUDE.md
+/.aicontext.md

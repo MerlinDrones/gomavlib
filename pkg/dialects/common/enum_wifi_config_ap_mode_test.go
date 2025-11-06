@@ -8,7 +8,7 @@ import (
 
 func TestEnum_WIFI_CONFIG_AP_MODE(t *testing.T) {
 	var e WIFI_CONFIG_AP_MODE
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

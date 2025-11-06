@@ -8,7 +8,7 @@ import (
 
 func TestEnum_CAMERA_MODE(t *testing.T) {
 	var e CAMERA_MODE
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

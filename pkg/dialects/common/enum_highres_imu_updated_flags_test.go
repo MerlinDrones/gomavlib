@@ -8,7 +8,7 @@ import (
 
 func TestEnum_HIGHRES_IMU_UPDATED_FLAGS(t *testing.T) {
 	var e HIGHRES_IMU_UPDATED_FLAGS
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

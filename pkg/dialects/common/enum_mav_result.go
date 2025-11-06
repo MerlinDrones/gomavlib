@@ -15,7 +15,7 @@ const (
 	MAV_RESULT_ACCEPTED MAV_RESULT = 0
 	// Command is valid, but cannot be executed at this time. This is used to indicate a problem that should be fixed just by waiting (e.g. a state machine is busy, can't arm because have not got GPS lock, etc.). Retrying later should work.
 	MAV_RESULT_TEMPORARILY_REJECTED MAV_RESULT = 1
-	// Command is invalid (is supported but has invalid parameters). Retrying same command and parameters will not work.
+	// Command is invalid; it is supported but one or more parameter values are invalid (i.e. parameter reserved, value allowed by spec but not supported by flight stack, and so on). Retrying the same command and parameters will not work.
 	MAV_RESULT_DENIED MAV_RESULT = 2
 	// Command is not supported (unknown).
 	MAV_RESULT_UNSUPPORTED MAV_RESULT = 3
@@ -31,6 +31,8 @@ const (
 	MAV_RESULT_COMMAND_INT_ONLY MAV_RESULT = 8
 	// Command is invalid because a frame is required and the specified frame is not supported.
 	MAV_RESULT_COMMAND_UNSUPPORTED_MAV_FRAME MAV_RESULT = 9
+	// Command has been rejected because source system is not in control of the target system/component.
+	MAV_RESULT_NOT_IN_CONTROL MAV_RESULT = 10
 )
 
 var value_to_label_MAV_RESULT = map[MAV_RESULT]string{
@@ -44,6 +46,7 @@ var value_to_label_MAV_RESULT = map[MAV_RESULT]string{
 	MAV_RESULT_COMMAND_LONG_ONLY:             "MAV_RESULT_COMMAND_LONG_ONLY",
 	MAV_RESULT_COMMAND_INT_ONLY:              "MAV_RESULT_COMMAND_INT_ONLY",
 	MAV_RESULT_COMMAND_UNSUPPORTED_MAV_FRAME: "MAV_RESULT_COMMAND_UNSUPPORTED_MAV_FRAME",
+	MAV_RESULT_NOT_IN_CONTROL:                "MAV_RESULT_NOT_IN_CONTROL",
 }
 
 var label_to_value_MAV_RESULT = map[string]MAV_RESULT{
@@ -57,6 +60,7 @@ var label_to_value_MAV_RESULT = map[string]MAV_RESULT{
 	"MAV_RESULT_COMMAND_LONG_ONLY":             MAV_RESULT_COMMAND_LONG_ONLY,
 	"MAV_RESULT_COMMAND_INT_ONLY":              MAV_RESULT_COMMAND_INT_ONLY,
 	"MAV_RESULT_COMMAND_UNSUPPORTED_MAV_FRAME": MAV_RESULT_COMMAND_UNSUPPORTED_MAV_FRAME,
+	"MAV_RESULT_NOT_IN_CONTROL":                MAV_RESULT_NOT_IN_CONTROL,
 }
 
 // MarshalText implements the encoding.TextMarshaler interface.

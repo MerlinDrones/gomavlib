@@ -8,7 +8,7 @@ import (
 
 func TestEnum_CAMERA_ZOOM_TYPE(t *testing.T) {
 	var e CAMERA_ZOOM_TYPE
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

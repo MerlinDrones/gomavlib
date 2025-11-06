@@ -8,7 +8,7 @@ import (
 
 func TestEnum_SERIAL_CONTROL_DEV(t *testing.T) {
 	var e SERIAL_CONTROL_DEV
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

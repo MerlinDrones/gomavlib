@@ -8,7 +8,7 @@ import (
 
 func TestEnum_FENCE_MITIGATE(t *testing.T) {
 	var e FENCE_MITIGATE
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }
