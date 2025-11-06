@@ -8,7 +8,7 @@ import (
 
 func TestEnum_NAV_VTOL_LAND_OPTIONS(t *testing.T) {
 	var e NAV_VTOL_LAND_OPTIONS
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

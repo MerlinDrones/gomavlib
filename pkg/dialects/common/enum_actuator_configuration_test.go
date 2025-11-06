@@ -8,7 +8,7 @@ import (
 
 func TestEnum_ACTUATOR_CONFIGURATION(t *testing.T) {
 	var e ACTUATOR_CONFIGURATION
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

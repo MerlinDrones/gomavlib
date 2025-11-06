@@ -8,7 +8,7 @@ import (
 
 func TestEnum_AUTOTUNE_AXIS(t *testing.T) {
 	var e AUTOTUNE_AXIS
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

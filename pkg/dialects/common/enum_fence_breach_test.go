@@ -8,7 +8,7 @@ import (
 
 func TestEnum_FENCE_BREACH(t *testing.T) {
 	var e FENCE_BREACH
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

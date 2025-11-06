@@ -8,7 +8,7 @@ import (
 
 func TestEnum_ESC_CONNECTION_TYPE(t *testing.T) {
 	var e ESC_CONNECTION_TYPE
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

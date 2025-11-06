@@ -8,7 +8,7 @@ import (
 
 func TestEnum_GIMBAL_DEVICE_CAP_FLAGS(t *testing.T) {
 	var e GIMBAL_DEVICE_CAP_FLAGS
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

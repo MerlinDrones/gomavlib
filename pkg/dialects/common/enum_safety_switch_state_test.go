@@ -8,7 +8,7 @@ import (
 
 func TestEnum_SAFETY_SWITCH_STATE(t *testing.T) {
 	var e SAFETY_SWITCH_STATE
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

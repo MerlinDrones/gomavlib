@@ -8,7 +8,7 @@ import (
 
 func TestEnum_TUNE_FORMAT(t *testing.T) {
 	var e TUNE_FORMAT
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

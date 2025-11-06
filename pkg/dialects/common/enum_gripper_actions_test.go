@@ -8,7 +8,7 @@ import (
 
 func TestEnum_GRIPPER_ACTIONS(t *testing.T) {
 	var e GRIPPER_ACTIONS
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

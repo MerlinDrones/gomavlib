@@ -8,7 +8,7 @@ import (
 
 func TestEnum_STORAGE_USAGE_FLAG(t *testing.T) {
 	var e STORAGE_USAGE_FLAG
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

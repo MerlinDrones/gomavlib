@@ -8,7 +8,7 @@ import (
 
 func TestEnum_SET_FOCUS_TYPE(t *testing.T) {
 	var e SET_FOCUS_TYPE
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

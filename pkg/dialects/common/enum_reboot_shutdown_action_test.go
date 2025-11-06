@@ -8,7 +8,7 @@ import (
 
 func TestEnum_REBOOT_SHUTDOWN_ACTION(t *testing.T) {
 	var e REBOOT_SHUTDOWN_ACTION
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

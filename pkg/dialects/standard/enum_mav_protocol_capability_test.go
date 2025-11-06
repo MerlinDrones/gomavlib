@@ -8,7 +8,7 @@ import (
 
 func TestEnum_MAV_PROTOCOL_CAPABILITY(t *testing.T) {
 	var e MAV_PROTOCOL_CAPABILITY
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

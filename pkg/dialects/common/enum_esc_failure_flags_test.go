@@ -8,7 +8,7 @@ import (
 
 func TestEnum_ESC_FAILURE_FLAGS(t *testing.T) {
 	var e ESC_FAILURE_FLAGS
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

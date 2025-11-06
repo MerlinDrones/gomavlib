@@ -8,7 +8,7 @@ import (
 
 func TestEnum_MAV_ODID_VER_ACC(t *testing.T) {
 	var e MAV_ODID_VER_ACC
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

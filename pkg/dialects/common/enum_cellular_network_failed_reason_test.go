@@ -8,7 +8,7 @@ import (
 
 func TestEnum_CELLULAR_NETWORK_FAILED_REASON(t *testing.T) {
 	var e CELLULAR_NETWORK_FAILED_REASON
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

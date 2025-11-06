@@ -8,7 +8,7 @@ import (
 
 func TestEnum_MAV_ARM_AUTH_DENIED_REASON(t *testing.T) {
 	var e MAV_ARM_AUTH_DENIED_REASON
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

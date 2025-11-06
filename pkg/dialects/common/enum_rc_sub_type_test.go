@@ -8,7 +8,7 @@ import (
 
 func TestEnum_RC_SUB_TYPE(t *testing.T) {
 	var e RC_SUB_TYPE
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

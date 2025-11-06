@@ -8,7 +8,7 @@ import (
 
 func TestEnum_MOTOR_TEST_THROTTLE_TYPE(t *testing.T) {
 	var e MOTOR_TEST_THROTTLE_TYPE
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

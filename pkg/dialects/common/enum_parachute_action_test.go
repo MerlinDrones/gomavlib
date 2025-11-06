@@ -8,7 +8,7 @@ import (
 
 func TestEnum_PARACHUTE_ACTION(t *testing.T) {
 	var e PARACHUTE_ACTION
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

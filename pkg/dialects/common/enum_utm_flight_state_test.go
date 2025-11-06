@@ -8,7 +8,7 @@ import (
 
 func TestEnum_UTM_FLIGHT_STATE(t *testing.T) {
 	var e UTM_FLIGHT_STATE
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

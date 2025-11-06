@@ -8,7 +8,7 @@ import (
 
 func TestEnum_MAV_FTP_OPCODE(t *testing.T) {
 	var e MAV_FTP_OPCODE
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

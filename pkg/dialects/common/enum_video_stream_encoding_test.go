@@ -8,7 +8,7 @@ import (
 
 func TestEnum_VIDEO_STREAM_ENCODING(t *testing.T) {
 	var e VIDEO_STREAM_ENCODING
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

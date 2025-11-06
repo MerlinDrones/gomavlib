@@ -8,7 +8,7 @@ import (
 
 func TestEnum_GPS_FIX_TYPE(t *testing.T) {
 	var e GPS_FIX_TYPE
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

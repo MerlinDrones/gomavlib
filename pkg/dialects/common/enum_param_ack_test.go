@@ -8,7 +8,7 @@ import (
 
 func TestEnum_PARAM_ACK(t *testing.T) {
 	var e PARAM_ACK
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

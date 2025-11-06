@@ -8,7 +8,7 @@ import (
 
 func TestEnum_MAV_DATA_STREAM(t *testing.T) {
 	var e MAV_DATA_STREAM
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

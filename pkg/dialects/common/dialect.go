@@ -15,11 +15,6 @@ var Dialect = dial
 var dial = &dialect.Dialect{
 	Version: 3,
 	Messages: []message.Message{
-		// minimal
-		&MessageHeartbeat{},
-		&MessageProtocolVersion{},
-		// standard
-		&MessageAutopilotVersion{},
 		// common
 		&MessageSysStatus{},
 		&MessageSystemTime{},
@@ -42,7 +37,6 @@ var dial = &dialect.Dialect{
 		&MessageAttitude{},
 		&MessageAttitudeQuaternion{},
 		&MessageLocalPositionNed{},
-		&MessageGlobalPositionInt{},
 		&MessageRcChannelsScaled{},
 		&MessageRcChannelsRaw{},
 		&MessageServoOutputRaw{},
@@ -191,7 +185,9 @@ var dial = &dialect.Dialect{
 		&MessageGimbalManagerSetManualControl{},
 		&MessageEscInfo{},
 		&MessageEscStatus{},
+		&MessageAirspeed{},
 		&MessageWifiConfigAp{},
+		&MessageProtocolVersion{},
 		&MessageAisVessel{},
 		&MessageUavcanNodeStatus{},
 		&MessageUavcanNodeInfo{},
@@ -209,6 +205,7 @@ var dial = &dialect.Dialect{
 		&MessageCellularConfig{},
 		&MessageRawRpm{},
 		&MessageUtmGlobalPosition{},
+		&MessageParamError{},
 		&MessageDebugFloatArray{},
 		&MessageOrbitExecutionStatus{},
 		&MessageSmartBatteryInfo{},
@@ -247,5 +244,10 @@ var dial = &dialect.Dialect{
 		&MessageOpenDroneIdArmStatus{},
 		&MessageOpenDroneIdSystemUpdate{},
 		&MessageHygrometerSensor{},
+		// standard
+		&MessageGlobalPositionInt{},
+		&MessageAutopilotVersion{},
+		// minimal
+		&MessageHeartbeat{},
 	},
 }
