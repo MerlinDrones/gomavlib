@@ -8,7 +8,7 @@ import (
 
 func TestEnum_CAN_FILTER_OP(t *testing.T) {
 	var e CAN_FILTER_OP
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

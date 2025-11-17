@@ -8,7 +8,7 @@ import (
 
 func TestEnum_MAG_CAL_STATUS(t *testing.T) {
 	var e MAG_CAL_STATUS
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

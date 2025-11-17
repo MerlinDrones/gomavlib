@@ -8,7 +8,7 @@ import (
 
 func TestEnum_ESTIMATOR_STATUS_FLAGS(t *testing.T) {
 	var e ESTIMATOR_STATUS_FLAGS
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

@@ -8,7 +8,7 @@ import (
 
 func TestEnum_CAMERA_CAP_FLAGS(t *testing.T) {
 	var e CAMERA_CAP_FLAGS
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

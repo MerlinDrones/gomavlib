@@ -8,7 +8,7 @@ import (
 
 func TestEnum_MAV_MODE_FLAG(t *testing.T) {
 	var e MAV_MODE_FLAG
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

@@ -8,7 +8,7 @@ import (
 
 func TestEnum_PRECISION_LAND_MODE(t *testing.T) {
 	var e PRECISION_LAND_MODE
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

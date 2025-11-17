@@ -8,7 +8,7 @@ import (
 
 func TestEnum_FAILURE_UNIT(t *testing.T) {
 	var e FAILURE_UNIT
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

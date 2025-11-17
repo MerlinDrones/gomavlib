@@ -8,7 +8,7 @@ import (
 
 func TestEnum_MOTOR_TEST_ORDER(t *testing.T) {
 	var e MOTOR_TEST_ORDER
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

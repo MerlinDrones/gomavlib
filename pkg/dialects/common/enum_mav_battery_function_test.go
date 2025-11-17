@@ -8,7 +8,7 @@ import (
 
 func TestEnum_MAV_BATTERY_FUNCTION(t *testing.T) {
 	var e MAV_BATTERY_FUNCTION
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

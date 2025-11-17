@@ -8,7 +8,7 @@ import (
 
 func TestEnum_CELLULAR_CONFIG_RESPONSE(t *testing.T) {
 	var e CELLULAR_CONFIG_RESPONSE
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

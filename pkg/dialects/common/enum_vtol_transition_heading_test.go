@@ -8,7 +8,7 @@ import (
 
 func TestEnum_VTOL_TRANSITION_HEADING(t *testing.T) {
 	var e VTOL_TRANSITION_HEADING
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

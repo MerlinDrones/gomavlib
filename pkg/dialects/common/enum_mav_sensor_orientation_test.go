@@ -8,7 +8,7 @@ import (
 
 func TestEnum_MAV_SENSOR_ORIENTATION(t *testing.T) {
 	var e MAV_SENSOR_ORIENTATION
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

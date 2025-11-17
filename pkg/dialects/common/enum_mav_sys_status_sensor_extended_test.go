@@ -8,7 +8,7 @@ import (
 
 func TestEnum_MAV_SYS_STATUS_SENSOR_EXTENDED(t *testing.T) {
 	var e MAV_SYS_STATUS_SENSOR_EXTENDED
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }

@@ -8,7 +8,7 @@ import (
 
 func TestEnum_ORBIT_YAW_BEHAVIOUR(t *testing.T) {
 	var e ORBIT_YAW_BEHAVIOUR
-	e.UnmarshalText([]byte{})
-	e.MarshalText()
-	e.String()
+	_ = e.UnmarshalText([]byte{})
+	_, _ = e.MarshalText()
+	_ = e.String()
 }
