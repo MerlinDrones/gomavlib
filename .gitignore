@@ -35,3 +35,5 @@ scripts/*
 /Releases.md
 /CLAUDE.md
 /.aicontext.md
+
+.gitflow-release
