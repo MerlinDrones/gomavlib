@@ -1,5 +1,16 @@
 # Changelog
 
+## [v0.6.0] – 2026-08-21
+
+### Bug Fixes
+- use constant format strings in frame newError calls
+
+### Chores
+- bump VERSION to 0.6.0 for v0.6.0
+- added .gitflow-release, updated go.sum
+- sync Go version to 1.26.1 via swarmos-sync-go-mods
+
+
 ## [v0.5.1] – 2025-11-17
 
 (no user-facing changes)
